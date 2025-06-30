@@ -59,8 +59,7 @@
       <tbody>
         <tr v-for="(song, index) in filteredSongs" :key="song['歌名']">
           <td class="select"><input type="checkbox" v-model="selected[index]" /></td>
-          <td class="name">{{ song['歌名'].replace('（', '
-（') }}</td>
+          <td class="name" v-html="formatTitle(song['歌名'])"></td>
           <td class="youtube">
             <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
             <span v-else>-</span>
@@ -78,6 +77,12 @@
     const { createApp } = Vue;
 
     createApp({
+      methods: {
+        formatTitle(name) {
+          if (!name) return '';
+          return name.replace('（', '<br>（');
+        }
+      },
       data() {
         return {
           search: '',
