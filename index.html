@@ -8,19 +8,15 @@
   <style>
     body { font-family: sans-serif; padding: 20px; }
     input { width: 300px; padding: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
-    th { background-color: #f0f0f0; text-align: center; }
-    td { text-align: left; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+    th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; text-align: center; overflow-wrap: break-word; }
     th:first-child, td:first-child {
       width: 30px !important;
       min-width: 30px;
       max-width: 30px;
-      text-align: center;
     }
-    td.lyrics {
-      width: 30%;
-      word-break: break-word;
+    td.lyrics, th.lyrics {
+      width: 40%;
     }
   </style>
 </head>
@@ -33,7 +29,7 @@
       <thead>
         <tr>
           <th>選擇</th>
-          <th v-for="header in headers" :key="header" style="text-align: center;">{{ header }}</th>
+          <th v-for="header in headers" :key="header" :class="{ 'lyrics': header === '歌詞' }">{{ header }}</th>
         </tr>
       </thead>
       <tbody>
