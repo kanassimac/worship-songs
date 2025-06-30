@@ -81,6 +81,9 @@
         formatTitle(name) {
           if (!name) return '';
           return name.replace('（', '<br>（');
+        },
+        stripParentheses(text) {
+          return text.replace(/（.*?）/g, '');
         }
       },
       data() {
@@ -96,7 +99,9 @@
           let result = this.songs;
           if (keyword) {
             result = this.songs.filter(song => {
-              return Object.values(song).some(value =>
+              const titleWithoutParens = this.stripParentheses(song['歌名'] || '').toLowerCase();
+              const values = Object.assign({}, song, { '歌名': titleWithoutParens });
+              return Object.values(values).some(value =>
                 String(value).toLowerCase().includes(keyword)
               );
             });
