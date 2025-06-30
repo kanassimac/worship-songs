@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>敬拜歌譜查詢</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input { width: 300px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>敬拜歌譜查詢</h1>
+    <input v-model="search" placeholder="輸入歌名關鍵字">
+
+    <table v-if="filteredSongs.length">
+      <thead>
+        <tr>
+          <th v-for="header in headers" :key="header">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="song in filteredSongs" :key="song[headers[0]]">
+          <td v-for="header in headers" :key="header">{{ song[header] }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p v-else>查無資料</p>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          search: '',
+          songs: [],
+          headers: []
+        };
+      },
+      computed: {
+        filteredSongs() {
+          const keyword = this.search.trim().toLowerCase();
+          return this.songs.filter(song => {
+            return Object.values(song).some(value =>
+              String(value).toLowerCase().includes(keyword)
+            );
+          });
+        }
+      },
+      mounted() {
+        const url = 'https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/\u6b4c\u66f2\u6e05\u55ae';
+        axios.get(url).then(response => {
+          const rows = response.data;
+          if (rows.length > 0) {
+            this.headers = Object.keys(rows[0]);
+            this.songs = rows;
+          }
+        }).catch(error => {
+          console.error('讀取 Google Sheet 失敗:', error);
+        });
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
