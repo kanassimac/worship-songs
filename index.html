@@ -6,6 +6,9 @@
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
+    :root {
+      --lyrics-col-width: 40%;
+    }
     body { font-family: sans-serif; padding: 20px; }
     input { width: 300px; padding: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
@@ -16,16 +19,13 @@
       text-align: center;
       overflow-wrap: break-word;
     }
-    th:first-child, td:first-child {
-      width: 30px;
-      min-width: 30px;
-      max-width: 30px;
+    th.select, td.select {
+      width: calc(60% / 5);
+      min-width: calc(60% / 5);
+      max-width: calc(60% / 5);
     }
-    .lyrics {
-      width: 40%;
-    }
-    .col-remaining {
-      width: calc(60% / var(--other-cols));
+    th.lyrics, td.lyrics {
+      width: var(--lyrics-col-width);
     }
   </style>
 </head>
@@ -37,24 +37,25 @@
     <table v-if="filteredSongs.length">
       <thead>
         <tr>
-          <th>選擇</th>
-          <th v-for="header in headers" :key="header"
-              :class="header === '歌詞' ? 'lyrics' : 'col-remaining'">{{ header }}</th>
+          <th class="select">選擇</th>
+          <th class="select">歌名</th>
+          <th class="select">YouTube</th>
+          <th class="select">最近一次選歌日期</th>
+          <th class="select">選唱</th>
+          <th class="lyrics">歌詞</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(song, index) in filteredSongs" :key="song[headers[0]]">
-          <td><input type="checkbox" v-model="selected[index]" /></td>
-          <td v-for="header in headers" :key="header"
-              :class="header === '歌詞' ? 'lyrics' : 'col-remaining'">
-            <template v-if="header === 'YouTube'">
-              <a v-if="song[header]" :href="song[header]" target="_blank">YouTube 連結</a>
-              <span v-else>-</span>
-            </template>
-            <template v-else>
-              {{ song[header] }}
-            </template>
+        <tr v-for="(song, index) in filteredSongs" :key="song['歌名']">
+          <td class="select"><input type="checkbox" v-model="selected[index]" /></td>
+          <td class="select">{{ song['歌名'] }}</td>
+          <td class="select">
+            <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
+            <span v-else>-</span>
           </td>
+          <td class="select">{{ song['最近一次選歌日期'] }}</td>
+          <td class="select">{{ song['選唱'] }}</td>
+          <td class="lyrics">{{ song['歌詞'] }}</td>
         </tr>
       </tbody>
     </table>
@@ -69,7 +70,7 @@
         return {
           search: '',
           songs: [],
-          headers: [],
+          headers: ['歌名', 'YouTube', '最近一次選歌日期', '選唱', '歌詞'],
           selected: []
         };
       },
@@ -85,12 +86,8 @@
             });
           }
           return result.sort((a, b) => {
-            const key = '歌名';
-            return (a[key] || '').localeCompare(b[key] || '');
+            return (a['歌名'] || '').localeCompare(b['歌名'] || '');
           });
-        },
-        otherColCount() {
-          return this.headers.filter(h => h !== '歌詞').length;
         }
       },
       mounted() {
@@ -98,10 +95,8 @@
         axios.get(url).then(response => {
           const rows = response.data;
           if (rows.length > 0) {
-            this.headers = Object.keys(rows[0]);
             this.songs = rows;
             this.selected = new Array(rows.length).fill(false);
-            document.documentElement.style.setProperty('--other-cols', this.headers.filter(h => h !== '歌詞').length);
           }
         }).catch(error => {
           console.error('讀取 Google Sheet 失敗:', error);
