@@ -21,11 +21,13 @@
     <table v-if="filteredSongs.length">
       <thead>
         <tr>
+          <th><input type="checkbox" @click="toggleAll"></th>
           <th v-for="header in headers" :key="header">{{ header }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="song in filteredSongs" :key="song[headers[0]]">
+        <tr v-for="(song, index) in filteredSongs" :key="song[headers[0]]">
+          <td><input type="checkbox" v-model="selected[index]" /></td>
           <td v-for="header in headers" :key="header">{{ song[header] }}</td>
         </tr>
       </tbody>
@@ -41,17 +43,31 @@
         return {
           search: '',
           songs: [],
-          headers: []
+          headers: [],
+          selected: []
         };
       },
       computed: {
         filteredSongs() {
           const keyword = this.search.trim().toLowerCase();
-          return this.songs.filter(song => {
-            return Object.values(song).some(value =>
-              String(value).toLowerCase().includes(keyword)
-            );
+          let result = this.songs;
+          if (keyword) {
+            result = this.songs.filter(song => {
+              return Object.values(song).some(value =>
+                String(value).toLowerCase().includes(keyword)
+              );
+            });
+          }
+          return result.sort((a, b) => {
+            const key = '歌名';
+            return (a[key] || '').localeCompare(b[key] || '');
           });
+        }
+      },
+      methods: {
+        toggleAll(e) {
+          const isChecked = e.target.checked;
+          this.selected = this.filteredSongs.map(() => isChecked);
         }
       },
       mounted() {
@@ -61,6 +77,7 @@
           if (rows.length > 0) {
             this.headers = Object.keys(rows[0]);
             this.songs = rows;
+            this.selected = new Array(rows.length).fill(false);
           }
         }).catch(error => {
           console.error('讀取 Google Sheet 失敗:', error);
