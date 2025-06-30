@@ -6,26 +6,25 @@
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    :root {
-      --lyrics-col-width: 40%;
-    }
     body { font-family: sans-serif; padding: 20px; }
     input { width: 300px; padding: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
-      vertical-align: top;
       text-align: center;
-      overflow-wrap: break-word;
+      vertical-align: top;
+      word-break: break-word;
     }
-    th.select, td.select {
-      width: calc(60% / 5);
-      min-width: calc(60% / 5);
-      max-width: calc(60% / 5);
+    th.select, td.select,
+    th.name, td.name,
+    th.youtube, td.youtube,
+    th.date, td.date,
+    th.singer, td.singer {
+      width: 12%;
     }
     th.lyrics, td.lyrics {
-      width: var(--lyrics-col-width);
+      width: 40%;
     }
   </style>
 </head>
@@ -38,23 +37,23 @@
       <thead>
         <tr>
           <th class="select">選擇</th>
-          <th class="select">歌名</th>
-          <th class="select">YouTube</th>
-          <th class="select">最近一次選歌日期</th>
-          <th class="select">選唱</th>
+          <th class="name">歌名</th>
+          <th class="youtube">YouTube</th>
+          <th class="date">最近一次選歌日期</th>
+          <th class="singer">選唱</th>
           <th class="lyrics">歌詞</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(song, index) in filteredSongs" :key="song['歌名']">
           <td class="select"><input type="checkbox" v-model="selected[index]" /></td>
-          <td class="select">{{ song['歌名'] }}</td>
-          <td class="select">
+          <td class="name">{{ song['歌名'] }}</td>
+          <td class="youtube">
             <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
             <span v-else>-</span>
           </td>
-          <td class="select">{{ song['最近一次選歌日期'] }}</td>
-          <td class="select">{{ song['選唱'] }}</td>
+          <td class="date">{{ song['最近一次選歌日期'] }}</td>
+          <td class="singer">{{ song['選唱'] }}</td>
           <td class="lyrics">{{ song['歌詞'] }}</td>
         </tr>
       </tbody>
@@ -70,7 +69,6 @@
         return {
           search: '',
           songs: [],
-          headers: ['歌名', 'YouTube', '最近一次選歌日期', '選唱', '歌詞'],
           selected: []
         };
       },
