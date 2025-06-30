@@ -83,7 +83,7 @@
           return name.replace('（', '<br>（');
         },
         stripParentheses(text) {
-          return text.replace(/（.*?）/g, '');
+          return text.replace(/（[^）]*）/g, '');
         }
       },
       data() {
@@ -99,9 +99,9 @@
           let result = this.songs;
           if (keyword) {
             result = this.songs.filter(song => {
-              const titleWithoutParens = this.stripParentheses(song['歌名'] || '').toLowerCase();
-              const values = Object.assign({}, song, { '歌名': titleWithoutParens });
-              return Object.values(values).some(value =>
+              const filteredSong = { ...song };
+              filteredSong['歌名'] = this.stripParentheses(filteredSong['歌名'] || '');
+              return Object.values(filteredSong).some(value =>
                 String(value).toLowerCase().includes(keyword)
               );
             });
