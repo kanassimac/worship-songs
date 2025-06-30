@@ -34,9 +34,8 @@
     }
     th.name, td.name,
     th.youtube, td.youtube,
-    th.date, td.date,
-    th.singer, td.singer {
-      width: 14.25%;
+    th.sheet, td.sheet {
+      width: 19.25%;
     }
   </style>
 </head>
@@ -51,8 +50,7 @@
           <th class="select">選擇</th>
           <th class="name">歌名</th>
           <th class="youtube">YouTube</th>
-          <th class="date">最近一次選歌日期</th>
-          <th class="singer">選唱</th>
+          <th class="sheet">歌譜連結</th>
           <th class="lyrics">歌詞</th>
         </tr>
       </thead>
@@ -64,8 +62,10 @@
             <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
             <span v-else>-</span>
           </td>
-          <td class="date">{{ song['最近一次選歌日期'] }}</td>
-          <td class="singer">{{ song['選唱'] }}</td>
+          <td class="sheet">
+            <a v-if="song['歌譜連結']" :href="song['歌譜連結']" target="_blank">下載歌譜</a>
+            <span v-else>-</span>
+          </td>
           <td class="lyrics">{{ song['歌詞'] }}</td>
         </tr>
       </tbody>
