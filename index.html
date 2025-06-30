@@ -24,7 +24,7 @@
     <table v-if="filteredSongs.length">
       <thead>
         <tr>
-          <th><input type="checkbox" @click="toggleAll"></th>
+          <th>選擇</th>
           <th v-for="header in headers" :key="header" style="text-align: center;">{{ header }}</th>
         </tr>
       </thead>
@@ -73,12 +73,6 @@
             const key = '歌名';
             return (a[key] || '').localeCompare(b[key] || '');
           });
-        }
-      },
-      methods: {
-        toggleAll(e) {
-          const isChecked = e.target.checked;
-          this.selected = this.filteredSongs.map(() => isChecked);
         }
       },
       mounted() {
