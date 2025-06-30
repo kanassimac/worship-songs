@@ -11,6 +11,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f0f0f0; }
+    th:first-child, td:first-child { width: 30px; text-align: center; }
+    td.lyrics { width: 30%; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -28,7 +30,15 @@
       <tbody>
         <tr v-for="(song, index) in filteredSongs" :key="song[headers[0]]">
           <td><input type="checkbox" v-model="selected[index]" /></td>
-          <td v-for="header in headers" :key="header">{{ song[header] }}</td>
+          <td v-for="header in headers" :key="header" :class="{ 'lyrics': header === '歌詞' }">
+            <template v-if="header === 'YouTube'">
+              <a v-if="song[header]" :href="song[header]" target="_blank">YouTube 連結</a>
+              <span v-else>-</span>
+            </template>
+            <template v-else>
+              {{ song[header] }}
+            </template>
+          </td>
         </tr>
       </tbody>
     </table>
