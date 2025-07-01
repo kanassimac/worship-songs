@@ -2,56 +2,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-  body {
-    font-family: "Helvetica Neue", sans-serif;
-    margin: 2rem;
-    background-color: #f9f9f9;
-    color: #333;
-  }
-  h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 0.75rem;
-    text-align: left;
-  }
-  th {
-    background-color: #f1f1f1;
-  }
-  tr:hover {
-    background-color: #f5f5f5;
-  }
-  input[type="text"] {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-</style>
-
-<script>
-  function filterTable() {
-    const input = document.getElementById("searchInput");
-    const filter = input.value.trim().toLowerCase();
-    const rows = document.querySelectorAll("table tbody tr");
-    rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(filter) ? "" : "none";
-    });
-  }
-</script>
-
   <meta charset="UTF-8" />
   <title>敬拜歌譜查詢</title>
   <script src="https://unpkg.com/vue@3"></script>
@@ -83,7 +33,7 @@
 <body>
   <div id="app">
     <h1>敬拜歌譜查詢</h1>
-    <input id="searchInput" oninput="filterTable()"  type="text" v-model="search" placeholder="輸入歌名關鍵字" />
+    <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
 
     <table v-if="filteredSongs.length">
       <thead>
@@ -97,7 +47,7 @@
       </thead>
       <tbody>
         <tr v-for="(song, idx) in filteredSongs" :key="song['歌名']">
-          <td class="select"><input id="searchInput" oninput="filterTable()"  type="checkbox" v-model="selected[idx]" /></td>
+          <td class="select"><input type="checkbox" v-model="selected[idx]" /></td>
           <td class="name"><span v-html="formatTitle(song['歌名'])"></span></td>
           <td class="youtube">
             <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
@@ -105,7 +55,7 @@
           </td>
           <td class="sheet">
             <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">
-              線上預覽
+              下載歌譜
             </a>
             <span v-else>-</span>
           </td>
@@ -150,7 +100,7 @@
           return axios.get(url).then(resp => {
             const map = {};
             Object.keys(resp.data).forEach(name => {
-              map[name.trim()] = `https://drive.google.com/uc?export=target="_blank"&id=${resp.data[name]}`;
+              map[name.trim()] = `https://drive.google.com/uc?export=download&id=${resp.data[name]}`;
             });
             this.sheetMap = map;
           });
