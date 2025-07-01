@@ -1,82 +1,121 @@
 
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>敬拜歌曲查詢</title>
+  <meta charset="UTF-8" />
+  <title>敬拜歌譜查詢</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    body {
-      font-family: "Helvetica Neue", sans-serif;
-      padding: 2em;
-      background: #f9f9f9;
-      color: #333;
+    body { font-family: sans-serif; padding: 20px; }
+    input[type="text"] { width: 300px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+      word-break: break-word;
+      height: 50px;
     }
-    h1 {
-      font-size: 1.8em;
-      color: #444;
+    td.select input[type="checkbox"] {
+      margin: 0 auto;
+      display: block;
+      transform: scale(1.2);
     }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      background: #fff;
-      border: 1px solid #ddd;
-      margin-bottom: 0.8em;
-      padding: 1em;
-      border-radius: 5px;
-    }
-    .download-link {
-      margin-top: 0.5em;
-      display: inline-block;
-      padding: 0.5em 1em;
-      background-color: #337ab7;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .download-link:hover {
-      background-color: #286090;
-    }
+    th.select, td.select { width: 3%; min-width: 40px; max-width: 40px; }
+    th.lyrics, td.lyrics { width: 40%; }
+    th.name, td.name,
+    th.youtube, td.youtube,
+    th.sheet, td.sheet { width: 19%; }
   </style>
 </head>
 <body>
-  <h1>敬拜歌曲歌譜查詢</h1>
-  <ul id="song-list">
-    <!-- 程式自動插入 -->
-  </ul>
+  <div id="app">
+    <h1>敬拜歌譜查詢</h1>
+    <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
+
+    <table v-if="filteredSongs.length">
+      <thead>
+        <tr>
+          <th class="select">選擇</th>
+          <th class="name">歌名</th>
+          <th class="youtube">YouTube</th>
+          <th class="sheet">歌譜連結</th>
+          <th class="lyrics">歌詞</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(song, idx) in filteredSongs" :key="song['歌名']">
+          <td class="select"><input type="checkbox" v-model="selected[idx]" /></td>
+          <td class="name"><span v-html="formatTitle(song['歌名'])"></span></td>
+          <td class="youtube">
+            <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
+            <span v-else>-</span>
+          </td>
+          <td class="sheet">
+            <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">
+              下載歌譜
+            </a>
+            <span v-else>-</span>
+          </td>
+          <td class="lyrics">{{ song['歌詞'] }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p v-else>查無資料</p>
+  </div>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbw6FCtgWddGg29Yj6TN_DpPZh4jo1zKSnBnyTpDhKVlwwoG4U1UfNnqm_OQjM7xXDU3/exec';
+    const { createApp } = Vue;
 
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(data => {
-        const songList = document.getElementById('song-list');
-        const sortedTitles = Object.keys(data).sort();
-
-        sortedTitles.forEach(title => {
-          const fileId = data[title];
-          const li = document.createElement('li');
-
-          const songTitle = document.createElement('div');
-          songTitle.textContent = title;
-
-          const link = document.createElement('a');
-          link.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
-          link.textContent = '下載歌譜';
-          link.className = 'download-link';
-          link.target = '_blank';
-
-          li.appendChild(songTitle);
-          li.appendChild(link);
-          songList.appendChild(li);
-        });
-      })
-      .catch(error => {
-        document.getElementById('song-list').innerHTML = '<li>載入失敗，請稍後再試。</li>';
-        console.error('取得歌譜清單時發生錯誤：', error);
-      });
+    createApp({
+      data() {
+        return {
+          search: '',
+          songs: [],
+          selected: [],
+          sheetMap: {}
+        };
+      },
+      computed: {
+        filteredSongs() {
+          const kw = this.search.trim().toLowerCase();
+          let items = this.songs.map(song => ({
+            ...song,
+            _nameStripped: song['歌名'].replace(/（[^）]*）/g, '')
+          }));
+          if (kw) {
+            items = items.filter(song => song._nameStripped.toLowerCase().includes(kw));
+          }
+          return items.sort((a, b) => a._nameStripped.localeCompare(b._nameStripped));
+        }
+      },
+      methods: {
+        formatTitle(name) {
+          return name ? name.replace('（', '<br>（') : '';
+        },
+        fetchSheetMap() {
+          const url = 'https://script.google.com/macros/s/AKfycbwL9BcEAzQv_pYe5yC7r3lqRFIaz7Cfaqw9snBay0bgItUVbazm4PNsdT_5Cl_QEaYA/exec';
+          return axios.get(url).then(resp => {
+            const map = {};
+            Object.keys(resp.data).forEach(name => {
+              map[name.trim()] = `https://drive.google.com/uc?export=download&id=${resp.data[name]}`;
+            });
+            this.sheetMap = map;
+          });
+        }
+      },
+      mounted() {
+        axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
+          .then(res => {
+            this.songs = res.data;
+            this.selected = Array(this.songs.length).fill(false);
+          })
+          .then(() => this.fetchSheetMap())
+          .catch(err => console.error(err));
+      }
+    }).mount('#app');
   </script>
 </body>
 </html>
