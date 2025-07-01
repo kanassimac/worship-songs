@@ -100,7 +100,7 @@
           return axios.get(url).then(resp => {
             const map = {};
             Object.keys(resp.data).forEach(name => {
-              map[name.trim()] = `https://drive.google.com/uc?export=download&id=${resp.data[name]}`;
+              map[name.trim()] = `https://drive.google.com/file/d/${resp.data[name]}`;
             });
             this.sheetMap = map;
           });
