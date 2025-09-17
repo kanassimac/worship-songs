@@ -28,7 +28,11 @@
     th.name, td.name,
     th.youtube, td.youtube,
     th.sheet, td.sheet { width: 19%; }
-  </style>
+    /* 新增的樣式：選取行背景色 */
+    .selected-row {
+      background-color: #54bbcd !important;
+    }
+</style>
 
     <style>
       .highlight-new {
@@ -53,7 +57,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(song, idx) in filteredSongs" :key="song['歌名']">
+        <tr v-for="(song, idx) in filteredSongs" :key="song['歌名']" :class="{ 'selected-row': selected[idx] }">
           <td class="select"><input type="checkbox" v-model="selected[idx]" /></td>
           <td class="name"><span v-if="song['選唱'] === '近半年內沒選唱過'" style="color: red; font-weight: bold;">NEW<br></span><span v-html="formatTitle(song['歌名'])"></span></td>
           <td class="youtube">
