@@ -74,7 +74,7 @@
         white-space: normal; 
     }
     .selected-song-item input[type="checkbox"] {
-        transform: scale(1.8); /* 進一步增大核取方塊 */
+        transform: scale(1.8); /* 進一步增大核選方塊 */
         accent-color: #54bbcd; 
         flex-shrink: 0;
         min-width: 30px; /* 確保觸控目標大小 */
@@ -308,13 +308,20 @@
     /* New: Container for the embedded PDF viewer */
     .pdf-viewer-container {
         width: 100%;
-        height: 3000px; 
+        /* [修正] 移除固定高度，改用 padding-bottom 實現 A4 比例 */
+        padding-bottom: 141.4%; /* A4 比例: 高度為寬度的 141.4% (1:1.414) */
+        position: relative; 
+        
         border: 1px solid #ccc;
         border-radius: 8px;
         overflow: hidden;
         margin-top: 10px;
+        background-color: white; /* 確保背景是白色而不是透明/黑底 */
     }
     .pdf-viewer-container iframe {
+        position: absolute; /* 讓 iframe 填滿 padding-bottom 撐開的區域 */
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         border: none;
