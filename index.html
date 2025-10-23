@@ -6,7 +6,7 @@
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; }
+    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 16px; }
     h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; }
     
     /* Controls Area Styling - Added Sticky Position */
@@ -35,7 +35,7 @@
         border-radius: 0 0 8px 8px; /* 移除上方圓角，讓它看起來像貼著 controls */
         overflow-x: auto; 
         white-space: nowrap; 
-        font-size: 0.95rem;
+        font-size: 1rem; /* 增大字體 */
 
         /* 關鍵變動：使其固定在 controls 下方 (第二層) */
         position: sticky;
@@ -62,28 +62,31 @@
     .selected-song-item {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px; /* 增加間距 */
         font-weight: bold;
     }
     .selected-song-item input[type="checkbox"] {
-        transform: scale(1.1);
-        accent-color: #54bbcd; /* 使用主色調 */
+        transform: scale(1.5); /* 增大核取方塊 */
+        accent-color: #54bbcd; 
         flex-shrink: 0;
+        min-width: 24px; /* 確保觸控目標大小 */
+        min-height: 24px;
     }
 
     input[type="text"] {
         width: 300px;
-        padding: 8px 12px;
+        padding: 10px 15px; /* 增大輸入框觸控區 */
         border: 1px solid #ccc;
         border-radius: 8px;
         transition: border-color 0.3s;
+        font-size: 1rem;
     }
     input[type="text"]:focus {
         border-color: #54bbcd;
         outline: none;
     }
     button {
-        padding: 8px 15px;
+        padding: 10px 20px; /* 增大按鈕觸控區 */
         background-color: #54bbcd;
         color: white;
         border: none;
@@ -92,6 +95,8 @@
         font-weight: bold;
         transition: background-color 0.3s, transform 0.1s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-size: 0.95rem; /* 增大按鈕文字 */
+        min-width: 100px;
     }
     button:hover {
         background-color: #43a3b2;
@@ -109,16 +114,17 @@
 
     /* 播放/關閉影片按鈕樣式 */
     .play-video-btn, .close-video-btn {
-        background-color: #2ecc71; /* 播放：綠色 */
-        padding: 5px 10px;
-        font-size: 0.8rem;
+        background-color: #2ecc71; 
+        padding: 8px 15px; /* 增大影片按鈕觸控區 */
+        font-size: 0.9rem;
         box-shadow: none;
         transform: none;
         margin: 5px 0;
         width: 100%;
+        min-width: auto;
     }
     .close-video-btn {
-        background-color: #e74c3c; /* 關閉：紅色 */
+        background-color: #e74c3c; 
     }
     
     /* Video Container for 16:9 aspect ratio in Table View */
@@ -146,14 +152,15 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden; 
+        font-size: 0.95rem; /* 增大表格文字 */
     }
     th, td {
         border: 1px solid #e0e0e0;
-        padding: 10px 8px;
+        padding: 12px 10px; /* 增加單元格內邊距 */
         text-align: center;
         vertical-align: middle;
         word-break: break-word;
-        min-height: 50px; 
+        min-height: 60px; /* 確保最小高度 */
         height: auto;
     }
     thead th {
@@ -182,8 +189,10 @@
     td.select input[type="checkbox"] {
         margin: 0 auto;
         display: block;
-        transform: scale(1.2);
+        transform: scale(1.5); /* 增大表格中的核取方塊 */
         accent-color: #54bbcd;
+        min-width: 24px; 
+        min-height: 24px;
     }
     .selected-row {
         background-color: #c9eaf0 !important;
@@ -212,7 +221,7 @@
     }
     .song-title {
         color: #2c3e50;
-        font-size: 1.5rem;
+        font-size: 1.6rem; /* 增大標題字體 */
         margin-top: 0;
         margin-bottom: 15px;
         border-bottom: 2px solid #54bbcd;
@@ -220,22 +229,23 @@
         word-break: break-all;
     }
     .section-block {
-        margin-top: 15px;
+        margin-top: 20px; /* 增加區塊間距 */
         padding-top: 10px;
         border-top: 1px dashed #eee;
     }
     .section-block h3 {
         color: #54bbcd;
-        font-size: 1.1rem;
+        font-size: 1.2rem; /* 增大區塊標題字體 */
         margin-bottom: 10px;
-        display: inline-block; /* 讓 h3 和按鈕在同一行 */
+        display: inline-block; 
         margin-right: 15px;
     }
     .lyrics-block p {
-        white-space: pre-wrap; /* 確保歌詞換行 */
+        white-space: pre-wrap; 
         text-align: left;
-        line-height: 1.6;
-        transition: font-size 0.2s; /* 讓字體大小調整更平滑 */
+        line-height: 1.8; /* 增加行距，提升閱讀性 */
+        font-size: 1.0rem; /* 基礎歌詞字體 */
+        transition: font-size 0.2s; 
     }
     /* 垂直排版用的全寬影片容器 */
     .video-container-full {
@@ -256,13 +266,15 @@
 
     /* 調整字體大小按鈕樣式 */
     .font-size-btn {
-        background-color: #f39c12; /* 橘色 */
-        padding: 4px 8px;
-        font-size: 0.8rem;
+        background-color: #f39c12; 
+        padding: 8px 12px; /* 增大字體調整按鈕觸控區 */
+        font-size: 0.9rem;
         font-weight: normal;
         margin-left: 5px;
         line-height: 1;
         box-shadow: none;
+        min-width: 40px; /* 最小寬度 */
+        min-height: 36px; /* 最小高度 */
     }
     .font-size-btn:hover {
         background-color: #e67e22;
@@ -271,8 +283,6 @@
     /* New: Container for the embedded PDF viewer */
     .pdf-viewer-container {
         width: 100%;
-        /* 根據使用者要求，使用一個較大的固定高度，盡量顯示歌譜完整內容。 */
-        /* 調整為 3000px，讓外部頁面捲動，而非內嵌框內部捲動 */
         height: 3000px; 
         border: 1px solid #ccc;
         border-radius: 8px;
@@ -285,23 +295,59 @@
         border: none;
     }
 
-    /* Responsive adjustment for small screens */
+    /* Responsive adjustment for small screens (Mobile First Enhancement) */
     @media (max-width: 768px) {
+        body { 
+            padding: 10px; 
+            font-size: 18px; /* 基礎字體再放大 */
+        }
+        
+        /* 表格文字 */
+        table { font-size: 1rem; }
+        th, td { padding: 10px 5px; }
+
         .controls { 
             flex-direction: column; 
             align-items: stretch;
             padding-bottom: 5px; 
         }
-        input[type="text"] { width: 100%; }
+        input[type="text"] { width: 100%; font-size: 1.1rem; }
+        button { font-size: 1rem; padding: 12px 20px; min-width: auto; } /* 確保按鈕大且滿版 */
+
+        /* 重新計算 Sticky Header Top */
+        /* 因為按鈕在手機上會換行，且高度變高，我們將 top 設置得更安全一些 */
         .selected-display {
-            top: 130px; 
+            top: 180px; /* 根據新按鈕高度調整 */
             border-radius: 0;
-            flex-direction: column; /* 小螢幕上標題和清單換行 */
+            flex-direction: column; 
+        }
+        .selected-display-title {
+            font-size: 1.1rem;
         }
         .selected-song-list {
-            flex-wrap: wrap; /* 允許已選歌曲清單換行 */
+            flex-wrap: wrap; 
             padding-left: 0;
             margin-top: 5px;
+        }
+        .selected-song-item {
+            font-size: 1rem;
+        }
+        
+        /* 直式排版文字/標題 */
+        .song-title { font-size: 1.8rem; }
+        .section-block h3 { font-size: 1.4rem; }
+        .lyrics-block p { font-size: 1.1rem; }
+        
+        /* 字體調整按鈕在小螢幕上可以稍微放大 */
+        .font-size-btn {
+            padding: 10px 15px; 
+            font-size: 1rem; 
+            min-height: 44px; /* 滿足 WCAG 觸控目標標準 */
+            min-width: 44px;
+        }
+        .play-video-btn, .close-video-btn {
+            font-size: 1rem; 
+            padding: 12px;
         }
     }
   </style>
