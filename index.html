@@ -214,7 +214,7 @@
     td.select input[type="checkbox"] {
         margin: 0 auto;
         display: block;
-        transform: scale(1.8); /* 增大表格中的核取方塊 */
+        transform: scale(1.8); /* 增大表格中的核選方塊 */
         accent-color: #54bbcd;
         min-width: 30px; 
         min-height: 30px;
@@ -439,8 +439,8 @@
     </div>
 
     <!-- 表格排版 (預設) -->
-    <!-- 修正 2: 即使沒有搜尋結果 (filteredSongs.length == 0)，只要在表格模式就顯示表格結構 -->
-    <table v-if="!isVerticalLayout">
+    <!-- 修正 1: 將 v-if="!isVerticalLayout" 改為 v-show="!isVerticalLayout" -->
+    <table v-show="!isVerticalLayout">
       <thead>
         <tr>
           <th class="select">選擇</th>
@@ -452,6 +452,10 @@
         </tr>
       </thead>
       <tbody>
+        <!-- 修正 2: 處理 filteredSongs 為空的情況，避免沒有 <tbody> 內容而導致的問題 -->
+        <tr v-if="filteredSongs.length === 0">
+            <td :colspan="5 - (!showYoutube ? 1 : 0) - (!showSheet ? 1 : 0) - (!showLyrics ? 1 : 0)">查無資料</td>
+        </tr>
         <tr v-for="song in filteredSongs" :key="song['歌名']" :class="{ 'selected-row': selectedKeys[song['歌名']] }">
           <td class="select">
             <input 
@@ -503,8 +507,8 @@
       </tbody>
     </table>
     
-    <!-- 表格模式下，查無資料的提示 -->
-    <p v-if="!isVerticalLayout && !filteredSongs.length">查無資料</p>
+    <!-- 移除單獨的「查無資料」段落，改在表格內部處理 -->
+    
 
     
     <!-- 直式排版 (僅顯示已選歌曲) -->
@@ -685,6 +689,10 @@
               if (this.isVerticalLayout && newVal.length === 0) {
                   this.isVerticalLayout = false;
                   this.activeVideoName = null;
+                  // 額外處理：確保在切換後，搜尋欄位仍是焦點
+                  this.$nextTick(() => {
+                      document.querySelector('input[type="text"]').focus();
+                  });
               }
           }
       },
