@@ -29,21 +29,26 @@
         padding-bottom: 10px; 
         font-size: 1.8rem; /* 標題字體 (目標大小) */ 
         margin: 0; /* 移除 h1 預設 margin */
-        width: 100%;
+        width: auto; /* 讓 h1 根據內容自動調整寬度 */
+        flex-shrink: 1;
+        padding-right: 15px; /* 與按鈕保持間距 */
     }
     .menu-toggle-btn {
-        font-size: 1.2rem;
-        padding: 12px 18px; 
+        /* [調整 1] 放大字體到標題大小 */
+        font-size: 1.8rem; 
+        padding: 10px 15px; /* 增大 padding */
         margin-left: 10px;
         flex-shrink: 0;
+        align-self: flex-start; /* 確保按鈕貼齊頂部 */
     }
     
     /* Controls Area Styling - Added Sticky Position */
     .controls {
-        display: flex;
-        align-items: center;
+        /* [調整 3] 移除 flex 佈局，改為區塊化控制 */
+        /* display: flex; */
+        /* align-items: center; */
         gap: 10px; 
-        flex-wrap: wrap; 
+        /* flex-wrap: wrap; */
         
         position: sticky; 
         top: 0; /* 貼齊 header-container 的底部 */
@@ -53,6 +58,16 @@
         padding-bottom: 10px; 
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
+
+    /* [調整 3b] 按鈕容器置中 */
+    .controls-button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center; /* 置中顯示 */
+        margin-top: 10px;
+    }
+
 
     /* Selected Display Area Styling */
     .selected-display {
@@ -84,43 +99,38 @@
         flex-shrink: 0; 
     }
     .selected-song-list {
-        /* [修正 1a] 移除 flex 相關屬性，讓每個項目可以獨佔一行 */
-        /* display: flex; */
-        gap: 0; /* 移除間距 */
+        gap: 0; 
         padding-left: 15px;
-        /* flex-grow: 1; */
     }
     .selected-song-item {
-        display: flex; /* 使用 flex 來對齊核選方塊和文字 */
-        align-items: center;
-        gap: 10px; /* 增大間距 */
-        font-weight: bold;
-        
-        /* [修正 1b] 讓每個項目變成塊級元素，強制換行 */
         display: block;
-        margin-bottom: 5px; /* [修正 2] 增加底部間距，消除殘影並讓每首歌曲分行 */
+        margin-bottom: 5px; 
         padding: 5px 0;
     }
     .selected-song-item label {
         display: inline;
     }
     .selected-song-item input[type="checkbox"] {
-        transform: scale(1.8); /* 進一步增大核選方塊 */
+        transform: scale(1.8); 
         accent-color: #54bbcd; 
         flex-shrink: 0;
-        min-width: 30px; /* 確保觸控目標大小 */
+        min-width: 30px; 
         min-height: 30px;
-        margin-right: 10px; /* 將間距移到這裡 */
+        margin-right: 10px; 
     }
 
     /* 搜尋欄位字體增大 */
     input[type="text"] {
-        width: 300px;
+        /* [調整 2] 寬度改為 75% */
+        width: 75%; 
+        min-width: 300px; /* 確保桌面仍有最小寬度 */
         padding: 15px 20px; /* 增大輸入框觸控區 */
         border: 1px solid #ccc;
         border-radius: 8px;
         transition: border-color 0.3s;
         font-size: 1.6rem; /* 增大字體，接近標題 */
+        display: block; /* 確保獨佔一行 */
+        margin: 0 auto 15px auto; /* 置中並增加底部間距 */
     }
     input[type="text"]:focus {
         border-color: #54bbcd;
@@ -129,6 +139,8 @@
     
     /* 按鈕字體增大 */
     button {
+        /* [調整 1c] 統一按鈕字體大小 */
+        font-size: 1.8rem; 
         padding: 15px 24px; /* 增大按鈕觸控區 */
         background-color: #54bbcd;
         color: white;
@@ -138,14 +150,11 @@
         font-weight: bold;
         transition: background-color 0.3s, transform 0.1s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        font-size: 1.5rem; /* 增大按鈕文字，接近標題 */
         min-width: 100px;
-        height: auto; /* 確保高度根據 padding 調整 */
+        height: auto; 
     }
-    /* 修正 2a: 移除按鈕 hover 效果的 transform，避免抖動 */
     button:hover {
         background-color: #43a3b2;
-        /* transform: translateY(-1px); */ /* 移除抖動 */
     }
     
     /* 隱藏按鈕的特殊樣式 */
@@ -160,8 +169,8 @@
     /* 播放/關閉影片按鈕樣式 */
     .play-video-btn, .close-video-btn {
         background-color: #2ecc71; 
-        padding: 12px 20px; /* 增大影片按鈕觸控區 */
-        font-size: 1.5rem; /* 增大字體 */
+        padding: 12px 20px; 
+        font-size: 1.5rem; 
         box-shadow: none;
         transform: none;
         margin: 5px 0;
@@ -197,11 +206,11 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden; 
-        font-size: 1.3rem; /* 基礎表格文字 */
+        font-size: 1.3rem; 
     }
     th, td {
         border: 1px solid #e0e0e0;
-        padding: 16px 12px; /* 增加單元格內邊距 */
+        padding: 16px 12px; 
         text-align: center;
         vertical-align: middle;
         word-break: break-word;
@@ -212,12 +221,12 @@
         background-color: #f1f1f1;
         color: #333;
         font-weight: 600;
-        font-size: 1.4rem; /* 增大表頭文字 */
+        font-size: 1.4rem; 
     }
 
     /* Column Widths */
     th.select, td.select { 
-        width: 60px; /* 調整為固定寬度以容納放大後的核選方塊 */
+        width: 60px; 
         min-width: 60px; 
         max-width: 60px; 
     }
@@ -227,7 +236,7 @@
     th.name, td.name { 
         width: 19%; 
         background-color: #f7f7f7; 
-        text-align: left; /* 歌名/團體換行後靠左看較舒適 */
+        text-align: left; 
     }
     
     /* 確保歌詞換行和靠左對齊 */
@@ -239,7 +248,7 @@
     /* --- 調整歌名和歌譜內容字體大小 (接近 H1 標題) --- */
     td.name span, 
     td.sheet a {
-        font-size: 1.5rem; /* 顯著增大歌名和下載連結字體 */
+        font-size: 1.5rem; 
         font-weight: bold;
     }
 
@@ -247,7 +256,7 @@
     td.select input[type="checkbox"] {
         margin: 0 auto;
         display: block;
-        transform: scale(1.8); /* 增大表格中的核選方塊 */
+        transform: scale(1.8); 
         accent-color: #54bbcd;
         min-width: 30px; 
         min-height: 30px;
@@ -273,13 +282,13 @@
         background-color: white;
         border: 1px solid #ddd;
         border-radius: 12px;
-        padding: 25px; /* 增大內邊距 */
+        padding: 25px; 
         margin-bottom: 30px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
     .song-title {
         color: #2c3e50;
-        font-size: 2.0rem; /* 增大標題字體 */
+        font-size: 2.0rem; 
         margin-top: 0;
         margin-bottom: 15px;
         border-bottom: 2px solid #54bbcd;
@@ -287,13 +296,13 @@
         word-break: break-all;
     }
     .section-block {
-        margin-top: 25px; /* 增加區塊間距 */
+        margin-top: 25px; 
         padding-top: 10px;
         border-top: 1px dashed #eee;
     }
     .section-block h3 {
         color: #54bbcd;
-        font-size: 1.6rem; /* 增大區塊標題字體 */
+        font-size: 1.6rem; 
         margin-bottom: 10px;
         display: inline-block; 
         margin-right: 15px;
@@ -302,7 +311,7 @@
         white-space: pre-wrap; 
         text-align: left;
         line-height: 1.8; 
-        font-size: 1.5rem; /* 基礎歌詞字體增大到 1.5rem */
+        font-size: 1.5rem; 
         transition: font-size 0.2s; 
     }
     /* 垂直排版用的全寬影片容器 */
@@ -325,15 +334,14 @@
     /* 調整字體大小按鈕樣式 */
     .font-size-btn {
         background-color: #f39c12; 
-        padding: 12px 18px; /* 變動 2b: 增大 padding */
-        font-size: 1.5rem; /* 增大字體 */
+        padding: 12px 18px; 
+        font-size: 1.5rem; 
         font-weight: normal;
-        margin-left: 8px; /* 變動 2b: 增大 margin */
+        margin-left: 8px; 
         line-height: 1;
         box-shadow: none;
-        min-width: 50px; /* 變動 2b: 增大最小寬度 */
-        min-height: 50px; /* 變動 2b: 增大最小高度 */
-        /* 修正 2a: 移除按鈕 hover 效果的 transform，避免抖動 */
+        min-width: 50px; 
+        min-height: 50px; 
         transition: background-color 0.3s;
     }
     .font-size-btn:hover {
@@ -343,18 +351,17 @@
     /* New: Container for the embedded PDF viewer */
     .pdf-viewer-container {
         width: 100%;
-        /* [修正] 移除固定高度，改用 padding-bottom 實現 A4 比例 */
-        padding-bottom: 141.4%; /* A4 比例: 高度為寬度的 141.4% (1:1.414) */
+        padding-bottom: 141.4%; 
         position: relative; 
         
         border: 1px solid #ccc;
         border-radius: 8px;
         overflow: hidden;
         margin-top: 10px;
-        background-color: white; /* 確保背景是白色而不是透明/黑底 */
+        background-color: white; 
     }
     .pdf-viewer-container iframe {
-        position: absolute; /* 讓 iframe 填滿 padding-bottom 撐開的區域 */
+        position: absolute; 
         top: 0;
         left: 0;
         width: 100%;
@@ -366,42 +373,49 @@
     @media (max-width: 768px) {
         body { 
             padding: 10px; 
-            font-size: 1.1rem; /* 基礎字體再放大 */
+            font-size: 1.2rem; /* 基礎字體再放大 */
         }
         
-        /* 表格文字 */
-        table { font-size: 1.4rem; } /* 手機表格字體 */
-        th, td { padding: 14px 10px; } /* 增大 padding */
+        /* 標題和選單按鈕 */
+        .header-container { margin-bottom: 10px; }
+        h1 { padding-bottom: 5px; }
+        .menu-toggle-btn { font-size: 1.6rem; padding: 10px 15px; } /* 修正手機字體 */
 
-        .controls { 
-            flex-direction: column; 
-            align-items: stretch;
-            padding-bottom: 5px; 
-        }
+        /* 搜尋輸入框 */
         input[type="text"] { 
-            width: 100%; 
-            font-size: 1.7rem; /* 搜尋欄位手機字體 (接近標題) */
-            padding: 18px 20px; /* 增大 padding */
+            width: 95%; /* 手機上讓它佔滿寬度 */
+            min-width: 95%;
+            font-size: 1.6rem; 
+        }
+
+        /* 控制按鈕區塊 */
+        .controls { 
+            padding-bottom: 5px; 
+            /* 保持原有的 sticky 設置 */
+        }
+        .controls-button-group {
+            justify-content: space-around; /* 在手機上分散對齊 */
         }
         button { 
-            font-size: 1.6rem; /* 按鈕手機字體 (接近標題) */
-            padding: 18px 20px; 
+            font-size: 1.4rem; /* 按鈕手機字體 */
+            padding: 15px 10px; 
             min-width: auto; 
+            flex-grow: 1; /* 讓按鈕平均分配空間 */
+            margin-bottom: 5px;
         } 
 
         /* 重新計算 Sticky Header Top */
-        /* 因為按鈕在手機上字體和 padding 變大，我們調整 top */
+        /* 由於佈局已經改變，這裡需要重新評估貼齊高度 */
         .selected-display {
-            top: 280px; /* 保持現有值，依賴相對尺寸調整 */
+            top: 250px; /* 估計值：header(50) + controls(180) + padding */
             border-radius: 0;
             flex-direction: column; 
-            font-size: 1.6rem; /* 已選歌曲字體 */
+            font-size: 1.6rem; 
         }
         .selected-display-title {
             font-size: 1.7rem;
         }
         .selected-song-list {
-            /* [修正 1c] 在手機上強制垂直排列 */
             display: block; 
             padding-left: 0;
             margin-top: 5px;
@@ -413,9 +427,6 @@
         /* 直式排版文字/標題 */
         .song-title { font-size: 2.2rem; }
         .section-block h3 { font-size: 1.8rem; }
-        
-        /* [修正 1]: 移除 media query 中對歌詞字體大小的固定設定 */
-        /* .lyrics-block p { font-size: 1.7rem; } */ 
         
         /* 字體調整按鈕在小螢幕上維持大尺寸 */
         .font-size-btn {
@@ -434,41 +445,50 @@
   <div id="app">
     <div class="header-container">
       <h1>Hlllc 敬拜曲庫</h1>
-      <button @click="showControls = !showControls" class="menu-toggle-btn">
+      <!-- [調整 1b] 調整按鈕樣式類別 -->
+      <button @click="showControls = !showControls" class="menu-toggle-btn button">
           {{ showControls ? '隱藏選單' : '顯示選單' }}
       </button>
     </div>
     
+    <!-- [調整 3] 移除 controls 的 flex 樣式，並調整內容佈局 -->
     <div class="controls" v-show="showControls">
+        <!-- [調整 2] 搜尋欄位寬度 75%，已置中 -->
         <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
 
-        <!-- 新增直式排版/切換回表格 按鈕 -->
-        <button 
-          v-if="selectedSongsSorted.length > 0"
-          @click="isVerticalLayout = !isVerticalLayout" 
-          :class="{ 'btn-hidden': !isVerticalLayout, 'vertical-layout-btn': true }"
-        >
-          {{ isVerticalLayout ? '切換回表格' : '直式排版' }}
-        </button>
-        
-        <!-- YouTube 顯示/隱藏按鈕 -->
-        <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">
-          {{ showYoutube ? '隱藏 YouTube' : '顯示 YouTube' }}
-        </button>
-        
-        <!-- 歌譜連結 顯示/隱藏按鈕 -->
-        <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">
-          {{ showSheet ? '隱藏歌譜' : '顯示歌譜' }}
-        </button>
-        
-        <!-- 歌詞顯示/隱藏按鈕 -->
-        <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">
-          {{ showLyrics ? '隱藏歌詞' : '顯示歌詞' }}
-        </button>
+        <!-- [調整 3b] 按鈕容器，用於置中和水平排列 -->
+        <div class="controls-button-group">
+            <!-- 新增直式排版/切換回表格 按鈕 -->
+            <button 
+              v-if="selectedSongsSorted.length > 0"
+              @click="isVerticalLayout = !isVerticalLayout" 
+              :class="{ 'btn-hidden': !isVerticalLayout }"
+            >
+              <!-- [調整 4] 按鈕文字 -->
+              {{ isVerticalLayout ? '表格排版' : '直式排版' }}
+            </button>
+            
+            <!-- YouTube 顯示/隱藏按鈕 -->
+            <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">
+              <!-- [調整 4] 按鈕文字 -->
+              {{ showYoutube ? '隱藏 YouTube' : 'YouTube' }}
+            </button>
+            
+            <!-- 歌譜連結 顯示/隱藏按鈕 -->
+            <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">
+              <!-- [調整 4] 按鈕文字 -->
+              {{ showSheet ? '隱藏歌譜' : '歌譜' }}
+            </button>
+            
+            <!-- 歌詞顯示/隱藏按鈕 -->
+            <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">
+              <!-- [調整 4] 按鈕文字 -->
+              {{ showLyrics ? '隱藏歌詞' : '歌詞' }}
+            </button>
+        </div>
     </div>
     
     <!-- 已選歌曲顯示區塊 (Sticky 第二層) -->
-    <!-- 動態 top 值：當選單隱藏時，貼齊 header-container 底部 (約 65px)；選單顯示時，貼齊 controls 底部 -->
     <div 
         v-if="selectedSongsSorted.length" 
         class="selected-display" 
@@ -495,7 +515,6 @@
     </div>
 
     <!-- 表格排版 (預設) -->
-    <!-- 修正 1: 將 v-if="!isVerticalLayout" 改為 v-show="!isVerticalLayout" -->
     <table v-show="!isVerticalLayout">
       <thead>
         <tr>
@@ -645,7 +664,6 @@
                 </div>
 
                 <!-- 歌詞內容 (動態字體大小) -->
-                <!-- 修正 2b: 確保 lyricsFontSizeMap 能夠正確響應 -->
                 <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">
                     {{ song['歌詞'] }}
                 </p>
@@ -744,16 +762,18 @@
         selectedDisplayTop() {
             // 估計 header-container 的高度 (h1 + padding/border)
             const HEADER_HEIGHT = 65; 
-            // 估計 controls 區塊在桌面/手機上的高度 (因為它會換行)
-            const CONTROLS_HEIGHT_DESKTOP = 110; 
-            const CONTROLS_HEIGHT_MOBILE = 280; 
-
+            // 估計 controls 區塊在桌面/手機上的高度 (controls 內有輸入框和按鈕組)
+            // 這裡採用一個近似值，實際高度會因螢幕寬度而異，但 sticky top 依靠 CSS 轉換
+            const CONTROLS_HEIGHT_DESKTOP = 130; // 約 1.5rem + 1.8rem 按鈕高度 + padding
+            const CONTROLS_HEIGHT_MOBILE = 250; // 手機上輸入框和按鈕組兩行疊加的高度
+            
             const isMobile = window.innerWidth <= 768;
             
             if (this.showControls) {
                 // 選單顯示時: 貼齊在 controls 區塊下方
                 const controlsHeight = isMobile ? CONTROLS_HEIGHT_MOBILE : CONTROLS_HEIGHT_DESKTOP;
-                return `${HEADER_HEIGHT + controlsHeight}px`;
+                // 這裡必須使用一個相對保守且足夠大的像素值，確保不會被遮擋
+                return `${HEADER_HEIGHT + controlsHeight}px`; 
             } else {
                 // 選單隱藏時: 貼齊在 header-container 下方
                 return `${HEADER_HEIGHT}px`;
