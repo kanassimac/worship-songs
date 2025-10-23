@@ -46,6 +46,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border-top: none; 
         
+        /* 保持 flex 佈局以對齊標題和列表，但在小螢幕上可能會切換到 column */
         display: flex; 
         align-items: flex-start;
     }
@@ -55,23 +56,25 @@
         flex-shrink: 0; 
     }
     .selected-song-list {
-        display: flex;
-        gap: 20px; /* 增大間距 */
+        /* [修正 1a] 移除 flex 相關屬性，讓每個項目可以獨佔一行 */
+        /* display: flex; */
+        gap: 0; /* 移除間距 */
         padding-left: 15px;
-        align-items: center;
-        flex-grow: 1; 
-        
-        /* 變動 1b: 啟用換行 */
-        flex-wrap: wrap; 
+        /* flex-grow: 1; */
     }
     .selected-song-item {
-        display: inline-flex;
+        display: flex; /* 使用 flex 來對齊核選方塊和文字 */
         align-items: center;
         gap: 10px; /* 增大間距 */
         font-weight: bold;
         
-        /* 確保每個項目都可換行 */
-        white-space: normal; 
+        /* [修正 1b] 讓每個項目變成塊級元素，強制換行 */
+        display: block;
+        margin-bottom: 5px; /* [修正 2] 增加底部間距，消除殘影並讓每首歌曲分行 */
+        padding: 5px 0;
+    }
+    .selected-song-item label {
+        display: inline;
     }
     .selected-song-item input[type="checkbox"] {
         transform: scale(1.8); /* 進一步增大核選方塊 */
@@ -79,6 +82,7 @@
         flex-shrink: 0;
         min-width: 30px; /* 確保觸控目標大小 */
         min-height: 30px;
+        margin-right: 10px; /* 將間距移到這裡 */
     }
 
     /* 搜尋欄位字體增大 */
@@ -369,7 +373,8 @@
             font-size: 1.7rem;
         }
         .selected-song-list {
-            flex-wrap: wrap; 
+            /* [修正 1c] 在手機上強制垂直排列 */
+            display: block; 
             padding-left: 0;
             margin-top: 5px;
         }
