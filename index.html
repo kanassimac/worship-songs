@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Hlllc 敬拜曲庫 02</title>
+  <title>Hlllc 敬拜曲庫</title>
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
@@ -183,7 +183,11 @@
     }
 
     /* Column Widths */
-    th.select, td.select { width: 3%; min-width: 40px; max-width: 40px; }
+    th.select, td.select { 
+        width: 60px; /* 調整為固定寬度以容納放大後的核選方塊 */
+        min-width: 60px; 
+        max-width: 60px; 
+    }
     th.youtube, td.youtube { width: 19%; }
     th.sheet, td.sheet { width: 19%; }
     th.lyrics, td.lyrics { width: 40%; } 
