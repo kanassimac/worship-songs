@@ -432,7 +432,7 @@
                     :id="'sel-' + song['歌名']"
                 />
                 <label :for="'sel-' + song['歌名']">
-                    {{ song.formattedName }}
+                    {{ formatSelectedSongName(song.formattedName) }}
                 </label>
             </span>
         </div>
@@ -478,7 +478,7 @@
                             allowfullscreen
                         ></iframe>
                     </div>
-                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉影片</button>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
                 </template>
                 
                 <!-- 影片未播放 -->
@@ -511,7 +511,7 @@
                 <span style="color: #54bbcd;">#{{ index + 1 }}</span>
                 &nbsp;
                 <!-- 歌名 - 使用 v-html 渲染換行後的歌名和團體名稱，並移除 NEW 標籤 -->
-                <span v-html="song.formattedName"></span>
+                <span v-html="formatTitle(song['歌名'])"></span>
             </h2>
 
             <!-- YouTube (Conditional Display) -->
@@ -526,7 +526,7 @@
                             allowfullscreen
                         ></iframe>
                     </div>
-                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉影片</button>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
                 </template>
                 <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
                     播放
@@ -695,6 +695,12 @@
           // 否則只顯示主歌名
           return mainTitle;
         },
+        
+        formatSelectedSongName(formattedName) {
+            // 將 formatTitle 產生的 '<br>' 替換為 '｜'
+            return formattedName.replace(/<br>/g, ' ｜ ');
+        },
+
         toggleLyrics() {
             // 在切換歌詞顯示時，不需要重置 activeVideoName，讓影片可以繼續播放
             this.showLyrics = !this.showLyrics;
