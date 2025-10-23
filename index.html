@@ -515,7 +515,8 @@
     </div>
 
     <!-- 表格排版 (預設) -->
-    <table v-show="!isVerticalLayout">
+    <!-- 修正：將 v-show 替換為 v-if，強制移除 DOM，避免殘影 -->
+    <table v-if="!isVerticalLayout"> 
       <thead>
         <tr>
           <th class="select">選擇</th>
@@ -587,7 +588,7 @@
 
     
     <!-- 直式排版 (僅顯示已選歌曲) -->
-    <!-- 修正 2: 移除直式排版的 filteredSongs.length 判斷，避免鎖定 -->
+    <!-- 修正：將 v-else-if 替換為 v-if，以確保完全移除 DOM -->
     <div v-else-if="isVerticalLayout">
         <!-- 修正 3: 如果直式排版下沒有選取歌曲，給予提示 -->
         <p v-if="selectedSongsSorted.length === 0">請先在表格模式中選取歌曲。</p>
