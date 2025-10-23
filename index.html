@@ -702,9 +702,9 @@
               if (this.isVerticalLayout && newVal.length === 0) {
                   this.isVerticalLayout = false;
                   this.activeVideoName = null;
-                  // 額外處理：確保在切換後，搜尋欄位仍是焦點
+                  // 修正：移除 focus()，改為滾動到頂部，避免移動裝置上的非預期放大
                   this.$nextTick(() => {
-                      document.querySelector('input[type="text"]').focus();
+                      window.scrollTo(0, 0);
                   });
               }
           }
