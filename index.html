@@ -33,8 +33,11 @@
         padding: 15px; /* 增大內邊距 */
         margin-bottom: 20px;
         border-radius: 0 0 8px 8px; 
-        overflow-x: auto; 
-        white-space: nowrap; 
+        
+        /* 變動 1a: 允許內容換行，移除水平滾動 */
+        overflow-x: hidden; 
+        white-space: normal; 
+        
         font-size: 1.3rem; /* 增大已選歌曲字體 */
 
         position: sticky;
@@ -57,12 +60,18 @@
         padding-left: 15px;
         align-items: center;
         flex-grow: 1; 
+        
+        /* 變動 1b: 啟用換行 */
+        flex-wrap: wrap; 
     }
     .selected-song-item {
         display: inline-flex;
         align-items: center;
         gap: 10px; /* 增大間距 */
         font-weight: bold;
+        
+        /* 確保每個項目都可換行 */
+        white-space: normal; 
     }
     .selected-song-item input[type="checkbox"] {
         transform: scale(1.8); /* 進一步增大核取方塊 */
@@ -248,7 +257,7 @@
         white-space: pre-wrap; 
         text-align: left;
         line-height: 1.8; 
-        font-size: 1.1rem; /* 基礎歌詞字體增大 */
+        font-size: 1.3rem; /* 變動 2a: 基礎歌詞字體增大到 1.3rem */
         transition: font-size 0.2s; 
     }
     /* 垂直排版用的全寬影片容器 */
@@ -271,14 +280,14 @@
     /* 調整字體大小按鈕樣式 */
     .font-size-btn {
         background-color: #f39c12; 
-        padding: 10px 15px; /* 增大字體調整按鈕觸控區 */
-        font-size: 1rem; /* 增大字體 */
+        padding: 12px 18px; /* 變動 2b: 增大 padding */
+        font-size: 1.2rem; /* 變動 2b: 增大字體 */
         font-weight: normal;
-        margin-left: 5px;
+        margin-left: 8px; /* 變動 2b: 增大 margin */
         line-height: 1;
         box-shadow: none;
-        min-width: 44px; 
-        min-height: 44px; /* 確保觸控目標大小 */
+        min-width: 50px; /* 變動 2b: 增大最小寬度 */
+        min-height: 50px; /* 變動 2b: 增大最小高度 */
     }
     .font-size-btn:hover {
         background-color: #e67e22;
@@ -349,7 +358,7 @@
         /* 直式排版文字/標題 */
         .song-title { font-size: 2rem; }
         .section-block h3 { font-size: 1.5rem; }
-        .lyrics-block p { font-size: 1.3rem; }
+        .lyrics-block p { font-size: 1.5rem; } /* 變動 2a: 手機基礎歌詞字體增大到 1.5rem */
         
         /* 字體調整按鈕在小螢幕上維持大尺寸 */
         .font-size-btn {
@@ -553,19 +562,10 @@
                     >
                         A+
                     </button>
-                    <!-- 重置按鈕 -->
-                     <button 
-                        @click="adjustLyricsSize(song['歌名'], 1.0, true)"
-                        v-if="lyricsFontSizeMap[song['歌名']] !== 1.0"
-                        class="font-size-btn"
-                        style="background-color: #3498db;"
-                    >
-                        Reset
-                    </button>
                 </div>
 
                 <!-- 歌詞內容 (動態字體大小) -->
-                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.0) + 'rem' }">
+                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.3) + 'rem' }">
                     {{ song['歌詞'] }}
                 </p>
             </div>
@@ -672,7 +672,8 @@
                 this.selectionOrderCounter++;
                 this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
                 if (!(songName in this.lyricsFontSizeMap)) {
-                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.0 };
+                    // 變動 2a: 預設起始字體大小改為 1.3rem
+                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.3 };
                 }
             } else {
                 const newSelectedKeys = { ...this.selectedKeys };
@@ -690,15 +691,17 @@
         },
 
         adjustLyricsSize(songName, delta, reset = false) {
-            let currentSize = this.lyricsFontSizeMap[songName] || 1.0;
+            // 變動 2a: 預設值調整為 1.3
+            let currentSize = this.lyricsFontSizeMap[songName] || 1.3;
             let newSize;
 
             if (reset) {
-                newSize = 1.0; 
+                newSize = 1.3; /* 配合新的預設值 */
             } else {
                 newSize = currentSize + delta;
             }
             
+            // 變動 2a: 保持調整範圍
             newSize = Math.max(0.8, Math.min(2.0, newSize));
             
             newSize = Math.round(newSize * 10) / 10;
