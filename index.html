@@ -110,9 +110,10 @@
         min-width: 100px;
         height: auto; /* 確保高度根據 padding 調整 */
     }
+    /* 修正 2a: 移除按鈕 hover 效果的 transform，避免抖動 */
     button:hover {
         background-color: #43a3b2;
-        transform: translateY(-1px);
+        /* transform: translateY(-1px); */ /* 移除抖動 */
     }
     
     /* 隱藏按鈕的特殊樣式 */
@@ -300,6 +301,8 @@
         box-shadow: none;
         min-width: 50px; /* 變動 2b: 增大最小寬度 */
         min-height: 50px; /* 變動 2b: 增大最小高度 */
+        /* 修正 2a: 移除按鈕 hover 效果的 transform，避免抖動 */
+        transition: background-color 0.3s;
     }
     .font-size-btn:hover {
         background-color: #e67e22;
@@ -530,8 +533,8 @@
                 <!-- 顯示選取順序 -->
                 <span style="color: #54bbcd;">#{{ index + 1 }}</span>
                 &nbsp;
-                <!-- 歌名 - 使用 v-html 渲染換行後的歌名和團體名稱，並移除 NEW 標籤 -->
-                <span v-html="formatTitle(song['歌名'])"></span>
+                <!-- 修正 3a: 將 v-html 替換為直接顯示，並使用 formatSelectedSongName 處理格式 -->
+                {{ formatSelectedSongName(song.formattedName) }}
             </h2>
 
             <!-- YouTube (Conditional Display) -->
@@ -596,6 +599,7 @@
                 </div>
 
                 <!-- 歌詞內容 (動態字體大小) -->
+                <!-- 修正 2b: 確保 lyricsFontSizeMap 能夠正確響應 -->
                 <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">
                     {{ song['歌詞'] }}
                 </p>
@@ -743,6 +747,7 @@
         toggleSongSelection(songName, isSelected) {
             if (isSelected) {
                 this.selectionOrderCounter++;
+                // 修正 2b: 確保在選取時初始化字體大小
                 this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
                 if (!(songName in this.lyricsFontSizeMap)) {
                     // 預設起始字體大小改為 1.7rem (手機直式排版)
@@ -767,7 +772,7 @@
         },
 
         adjustLyricsSize(songName, delta, reset = false) {
-            // 預設值調整為 1.7
+            // 修正 2b: 確保我們是基於當前狀態進行修改，並強制更新
             let currentSize = this.lyricsFontSizeMap[songName] || 1.7;
             let newSize;
 
@@ -782,6 +787,7 @@
             
             newSize = Math.round(newSize * 10) / 10;
             
+            // 修正 2b: 確保 Vue 響應式系統能偵測到變化
             this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: newSize };
         },
         
