@@ -465,25 +465,25 @@
               :class="{ 'btn-hidden': !isVerticalLayout }"
             >
               <!-- [調整 4] 按鈕文字 -->
-              {{ isVerticalLayout ? '表格排版' : '直式排版' }}
+              {{ isVerticalLayout ? '表格' : '直式排版' }}
             </button>
             
             <!-- YouTube 顯示/隱藏按鈕 -->
             <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">
               <!-- [調整 4] 按鈕文字 -->
-              {{ showYoutube ? '隱藏 YouTube' : 'YouTube' }}
+              {{ 'YouTube' }}
             </button>
             
             <!-- 歌譜連結 顯示/隱藏按鈕 -->
             <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">
               <!-- [調整 4] 按鈕文字 -->
-              {{ showSheet ? '隱藏歌譜' : '歌譜' }}
+              {{ '歌譜' }}
             </button>
             
             <!-- 歌詞顯示/隱藏按鈕 -->
             <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">
               <!-- [調整 4] 按鈕文字 -->
-              {{ showLyrics ? '隱藏歌詞' : '歌詞' }}
+              {{ '歌詞' }}
             </button>
         </div>
     </div>
