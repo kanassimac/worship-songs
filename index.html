@@ -164,7 +164,7 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden; 
-        font-size: 1.3rem; /* 增大表格文字 */
+        font-size: 1.3rem; /* 基礎表格文字 */
     }
     th, td {
         border: 1px solid #e0e0e0;
@@ -201,6 +201,13 @@
     td.lyrics {
         white-space: pre-wrap; 
         text-align: left;      
+    }
+    
+    /* --- 調整歌名和歌譜內容字體大小 (接近 H1 標題) --- */
+    td.name span, 
+    td.sheet a {
+        font-size: 1.5rem; /* 顯著增大歌名和下載連結字體 */
+        font-weight: bold;
     }
 
     /* Interactive Styles */
@@ -476,7 +483,7 @@
                 
                 <!-- 影片未播放 -->
                 <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
-                    播放影片
+                    播放
                 </button>
             </div>
             <span v-else>-</span>
@@ -522,7 +529,7 @@
                     <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉影片</button>
                 </template>
                 <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
-                    播放影片
+                    播放
                 </button>
             </div>
 
@@ -569,7 +576,7 @@
                 </div>
 
                 <!-- 歌詞內容 (動態字體大小) -->
-                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.5) + 'rem' }">
+                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">
                     {{ song['歌詞'] }}
                 </p>
             </div>
@@ -689,7 +696,7 @@
           return mainTitle;
         },
         toggleLyrics() {
-            this.activeVideoName = null; 
+            // 在切換歌詞顯示時，不需要重置 activeVideoName，讓影片可以繼續播放
             this.showLyrics = !this.showLyrics;
         },
         
@@ -698,8 +705,8 @@
                 this.selectionOrderCounter++;
                 this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
                 if (!(songName in this.lyricsFontSizeMap)) {
-                    // 預設起始字體大小改為 1.5rem
-                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.5 };
+                    // 預設起始字體大小改為 1.7rem (手機直式排版)
+                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.7 };
                 }
             } else {
                 const newSelectedKeys = { ...this.selectedKeys };
@@ -712,17 +719,20 @@
             }
             
             if (this.isVerticalLayout) {
-                this.activeVideoName = null;
+                // 在直式排版中，取消選中歌曲時，關閉其影片播放器
+                if (!isSelected && this.activeVideoName === songName) {
+                    this.activeVideoName = null;
+                }
             }
         },
 
         adjustLyricsSize(songName, delta, reset = false) {
-            // 預設值調整為 1.5
-            let currentSize = this.lyricsFontSizeMap[songName] || 1.5;
+            // 預設值調整為 1.7
+            let currentSize = this.lyricsFontSizeMap[songName] || 1.7;
             let newSize;
 
             if (reset) {
-                newSize = 1.5; /* 配合新的預設值 */
+                newSize = 1.7; /* 配合新的預設值 */
             } else {
                 newSize = currentSize + delta;
             }
@@ -736,7 +746,9 @@
         },
         
         toggleVideo(songName) {
-            if (!this.showYoutube) {
+            // 修復：確保即使隱藏 YouTube 欄位，點擊也不會出錯
+            if (!this.showYoutube && this.isVerticalLayout) {
+                // 如果在直式排版中隱藏 YouTube，強制關閉 activeVideoName
                 this.activeVideoName = null;
                 return;
             }
