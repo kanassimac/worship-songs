@@ -8,7 +8,35 @@
   <style>
     /* 全局設置：基礎字體稍大 */
     body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 1.1rem; /* 基礎字體增大 */ }
-    h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; font-size: 1.8rem; /* 標題字體 (目標大小) */ }
+    
+    /* NEW: 標題和選單按鈕容器 */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Space out title and button */
+        margin-bottom: 20px;
+        
+        position: sticky;
+        top: 0;
+        z-index: 11; /* 確保在最頂層 */
+        background-color: #f7f9fc;
+        padding-top: 5px; 
+    }
+    
+    h1 { 
+        color: #2c3e50; 
+        border-bottom: 2px solid #54bbcd; 
+        padding-bottom: 10px; 
+        font-size: 1.8rem; /* 標題字體 (目標大小) */ 
+        margin: 0; /* 移除 h1 預設 margin */
+        width: 100%;
+    }
+    .menu-toggle-btn {
+        font-size: 1.2rem;
+        padding: 12px 18px; 
+        margin-left: 10px;
+        flex-shrink: 0;
+    }
     
     /* Controls Area Styling - Added Sticky Position */
     .controls {
@@ -18,7 +46,7 @@
         flex-wrap: wrap; 
         
         position: sticky; 
-        top: 0; 
+        top: 0; /* 貼齊 header-container 的底部 */
         z-index: 10; 
         background-color: #f7f9fc; 
         padding-top: 10px; 
@@ -41,7 +69,7 @@
         font-size: 1.5rem; /* 增大已選歌曲字體 */
 
         position: sticky;
-        top: 60px; 
+        transition: top 0.3s ease-in-out; /* 動態 top 值的平滑過渡 */
         z-index: 9; 
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border-top: none; 
@@ -404,9 +432,14 @@
 
 <body>
   <div id="app">
-    <h1>Hlllc 敬拜曲庫</h1>
+    <div class="header-container">
+      <h1>Hlllc 敬拜曲庫</h1>
+      <button @click="showControls = !showControls" class="menu-toggle-btn">
+          {{ showControls ? '隱藏選單' : '顯示選單' }}
+      </button>
+    </div>
     
-    <div class="controls">
+    <div class="controls" v-show="showControls">
         <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
 
         <!-- 新增直式排版/切換回表格 按鈕 -->
@@ -435,7 +468,13 @@
     </div>
     
     <!-- 已選歌曲顯示區塊 (Sticky 第二層) -->
-    <div v-if="selectedSongsSorted.length" class="selected-display">
+    <!-- 動態 top 值：當選單隱藏時，貼齊 header-container 底部 (約 65px)；選單顯示時，貼齊 controls 底部 -->
+    <div 
+        v-if="selectedSongsSorted.length" 
+        class="selected-display" 
+        v-show="showControls" 
+        :style="{ top: selectedDisplayTop }"
+    >
         <!-- 標題 -->
         <p class="selected-display-title"><strong>已選歌曲（按選取順序）：</strong></p>
         
@@ -636,6 +675,7 @@
           activeVideoName: null, 
           lyricsFontSizeMap: {}, 
           sheetIdMap: {}, // 新增：儲存 Google Drive 檔案 ID
+          showControls: true, // NEW: 控制選單的顯示/隱藏
         };
       },
       computed: {
@@ -699,6 +739,25 @@
             if (nameWidthPercent < 5) return '5%';
             
             return `${nameWidthPercent}%`;
+        },
+        // NEW: 計算已選歌曲區塊的貼齊頂部位置
+        selectedDisplayTop() {
+            // 估計 header-container 的高度 (h1 + padding/border)
+            const HEADER_HEIGHT = 65; 
+            // 估計 controls 區塊在桌面/手機上的高度 (因為它會換行)
+            const CONTROLS_HEIGHT_DESKTOP = 110; 
+            const CONTROLS_HEIGHT_MOBILE = 280; 
+
+            const isMobile = window.innerWidth <= 768;
+            
+            if (this.showControls) {
+                // 選單顯示時: 貼齊在 controls 區塊下方
+                const controlsHeight = isMobile ? CONTROLS_HEIGHT_MOBILE : CONTROLS_HEIGHT_DESKTOP;
+                return `${HEADER_HEIGHT + controlsHeight}px`;
+            } else {
+                // 選單隱藏時: 貼齊在 header-container 下方
+                return `${HEADER_HEIGHT}px`;
+            }
         }
       },
       watch: {
