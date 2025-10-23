@@ -439,7 +439,8 @@
     </div>
 
     <!-- 表格排版 (預設) -->
-    <table v-if="!isVerticalLayout && filteredSongs.length">
+    <!-- 修正 2: 即使沒有搜尋結果 (filteredSongs.length == 0)，只要在表格模式就顯示表格結構 -->
+    <table v-if="!isVerticalLayout">
       <thead>
         <tr>
           <th class="select">選擇</th>
@@ -502,10 +503,18 @@
       </tbody>
     </table>
     
+    <!-- 表格模式下，查無資料的提示 -->
+    <p v-if="!isVerticalLayout && !filteredSongs.length">查無資料</p>
+
+    
     <!-- 直式排版 (僅顯示已選歌曲) -->
-    <div v-else-if="isVerticalLayout && selectedSongsSorted.length" class="vertical-layout-container">
-        <div v-for="(song, index) in selectedSongsSorted" :key="song['歌名']" class="song-card">
-            
+    <!-- 修正 2: 移除直式排版的 filteredSongs.length 判斷，避免鎖定 -->
+    <div v-else-if="isVerticalLayout">
+        <!-- 修正 3: 如果直式排版下沒有選取歌曲，給予提示 -->
+        <p v-if="selectedSongsSorted.length === 0">請先在表格模式中選取歌曲。</p>
+        
+        <div v-for="(song, index) in selectedSongsSorted" :key="song['歌名']" class="vertical-layout-container">
+            <div class="song-card">
             <h2 class="song-title">
                 <!-- 顯示選取順序 -->
                 <span style="color: #54bbcd;">#{{ index + 1 }}</span>
@@ -581,13 +590,14 @@
                 </p>
             </div>
         </div>
+        </div>
     </div>
     
-    <p v-else>查無資料</p>
+    <p v-else-if="!filteredSongs.length">查無資料</p>
   </div>
 
   <script>
-    const { createApp } = Vue;
+    const { createApp, watch } = Vue;
 
     createApp({
       data() {
@@ -668,6 +678,15 @@
             
             return `${nameWidthPercent}%`;
         }
+      },
+      watch: {
+          // 修正 1: 監聽已選歌曲數量。若在直式排版下歸零，則強制切回表格
+          selectedSongsSorted(newVal) {
+              if (this.isVerticalLayout && newVal.length === 0) {
+                  this.isVerticalLayout = false;
+                  this.activeVideoName = null;
+              }
+          }
       },
       methods: {
         formatTitle(name) {
