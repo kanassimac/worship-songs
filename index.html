@@ -788,7 +788,11 @@
             newSize = Math.round(newSize * 10) / 10;
             
             // 修正 2b: 確保 Vue 響應式系統能偵測到變化
-            this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: newSize };
+            // 由於直接使用 ...this.lyricsFontSizeMap 有時仍會失效，
+            // 這裡使用一個中間物件並重新賦值，以確保更新被正確追蹤。
+            const updatedMap = { ...this.lyricsFontSizeMap };
+            updatedMap[songName] = newSize;
+            this.lyricsFontSizeMap = updatedMap;
         },
         
         toggleVideo(songName) {
