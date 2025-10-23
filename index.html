@@ -8,7 +8,7 @@
   <style>
     /* 全局設置：基礎字體稍大 */
     body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 18px; /* 基礎字體增大 */ }
-    h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; font-size: 1.8rem; }
+    h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; font-size: 1.8rem; /* 標題字體 (目標大小) */ }
     
     /* Controls Area Styling - Added Sticky Position */
     .controls {
@@ -30,12 +30,12 @@
     .selected-display {
         background-color: #e0f7fa; 
         border: 1px solid #54bbcd;
-        padding: 12px;
+        padding: 15px; /* 增大內邊距 */
         margin-bottom: 20px;
         border-radius: 0 0 8px 8px; 
         overflow-x: auto; 
         white-space: nowrap; 
-        font-size: 1.1rem; /* 增大字體 */
+        font-size: 1.3rem; /* 增大已選歌曲字體 */
 
         position: sticky;
         top: 60px; 
@@ -53,33 +53,33 @@
     }
     .selected-song-list {
         display: flex;
-        gap: 15px; 
-        padding-left: 10px;
+        gap: 20px; /* 增大間距 */
+        padding-left: 15px;
         align-items: center;
         flex-grow: 1; 
     }
     .selected-song-item {
         display: inline-flex;
         align-items: center;
-        gap: 8px; 
+        gap: 10px; /* 增大間距 */
         font-weight: bold;
     }
     .selected-song-item input[type="checkbox"] {
-        transform: scale(1.5); 
+        transform: scale(1.8); /* 進一步增大核取方塊 */
         accent-color: #54bbcd; 
         flex-shrink: 0;
-        min-width: 24px; 
-        min-height: 24px;
+        min-width: 30px; /* 確保觸控目標大小 */
+        min-height: 30px;
     }
 
     /* 搜尋欄位字體增大 */
     input[type="text"] {
         width: 300px;
-        padding: 12px 18px; /* 增大輸入框觸控區 */
+        padding: 15px 20px; /* 增大輸入框觸控區 */
         border: 1px solid #ccc;
         border-radius: 8px;
         transition: border-color 0.3s;
-        font-size: 1.1rem; /* 增大字體 */
+        font-size: 1.4rem; /* 增大字體，接近標題 */
     }
     input[type="text"]:focus {
         border-color: #54bbcd;
@@ -88,7 +88,7 @@
     
     /* 按鈕字體增大 */
     button {
-        padding: 12px 24px; /* 增大按鈕觸控區 */
+        padding: 15px 24px; /* 增大按鈕觸控區 */
         background-color: #54bbcd;
         color: white;
         border: none;
@@ -97,8 +97,9 @@
         font-weight: bold;
         transition: background-color 0.3s, transform 0.1s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        font-size: 1rem; /* 增大按鈕文字 */
+        font-size: 1.3rem; /* 增大按鈕文字，接近標題 */
         min-width: 100px;
+        height: auto; /* 確保高度根據 padding 調整 */
     }
     button:hover {
         background-color: #43a3b2;
@@ -117,8 +118,8 @@
     /* 播放/關閉影片按鈕樣式 */
     .play-video-btn, .close-video-btn {
         background-color: #2ecc71; 
-        padding: 10px 18px; /* 增大影片按鈕觸控區 */
-        font-size: 1rem; /* 增大字體 */
+        padding: 12px 20px; /* 增大影片按鈕觸控區 */
+        font-size: 1.1rem; /* 增大字體 */
         box-shadow: none;
         transform: none;
         margin: 5px 0;
@@ -154,11 +155,11 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden; 
-        font-size: 1.05rem; /* 增大表格文字 */
+        font-size: 1.1rem; /* 增大表格文字 */
     }
     th, td {
         border: 1px solid #e0e0e0;
-        padding: 14px 12px; /* 增加單元格內邊距 */
+        padding: 16px 12px; /* 增加單元格內邊距 */
         text-align: center;
         vertical-align: middle;
         word-break: break-word;
@@ -169,7 +170,7 @@
         background-color: #f1f1f1;
         color: #333;
         font-weight: 600;
-        font-size: 1.1rem; /* 增大表頭文字 */
+        font-size: 1.2rem; /* 增大表頭文字 */
     }
 
     /* Column Widths */
@@ -192,10 +193,10 @@
     td.select input[type="checkbox"] {
         margin: 0 auto;
         display: block;
-        transform: scale(1.5); 
+        transform: scale(1.8); /* 增大表格中的核取方塊 */
         accent-color: #54bbcd;
-        min-width: 24px; 
-        min-height: 24px;
+        min-width: 30px; 
+        min-height: 30px;
     }
     .selected-row {
         background-color: #c9eaf0 !important;
@@ -306,8 +307,8 @@
         }
         
         /* 表格文字 */
-        table { font-size: 1.1rem; }
-        th, td { padding: 12px 8px; }
+        table { font-size: 1.2rem; } /* 手機表格字體 */
+        th, td { padding: 14px 10px; } /* 增大 padding */
 
         .controls { 
             flex-direction: column; 
@@ -316,25 +317,25 @@
         }
         input[type="text"] { 
             width: 100%; 
-            font-size: 1.2rem; /* 搜尋欄位手機字體 */
-            padding: 15px 20px;
+            font-size: 1.5rem; /* 搜尋欄位手機字體 (接近標題) */
+            padding: 18px 20px; /* 增大 padding */
         }
         button { 
-            font-size: 1.05rem; 
-            padding: 14px 20px; 
+            font-size: 1.4rem; /* 按鈕手機字體 (接近標題) */
+            padding: 18px 20px; 
             min-width: auto; 
         } 
 
         /* 重新計算 Sticky Header Top */
-        /* 因為按鈕在手機上會換行，且高度變高，我們將 top 設置得更安全一些 */
+        /* 因為按鈕在手機上字體和 padding 變大，我們調整 top */
         .selected-display {
-            top: 210px; /* 根據新按鈕高度調整 */
+            top: 280px; /* 根據新按鈕高度調整 */
             border-radius: 0;
             flex-direction: column; 
-            font-size: 1.1rem;
+            font-size: 1.3rem; /* 已選歌曲字體 */
         }
         .selected-display-title {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
         }
         .selected-song-list {
             flex-wrap: wrap; 
@@ -342,22 +343,22 @@
             margin-top: 5px;
         }
         .selected-song-item {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
         }
         
         /* 直式排版文字/標題 */
         .song-title { font-size: 2rem; }
         .section-block h3 { font-size: 1.5rem; }
-        .lyrics-block p { font-size: 1.2rem; }
+        .lyrics-block p { font-size: 1.3rem; }
         
         /* 字體調整按鈕在小螢幕上維持大尺寸 */
         .font-size-btn {
-            padding: 12px 18px; 
-            font-size: 1.05rem; 
+            padding: 15px 20px; 
+            font-size: 1.2rem; 
         }
         .play-video-btn, .close-video-btn {
-            font-size: 1.05rem; 
-            padding: 15px;
+            font-size: 1.2rem; 
+            padding: 18px;
         }
     }
   </style>
