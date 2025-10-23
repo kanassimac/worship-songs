@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     /* 全局設置：基礎字體稍大 */
-    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 18px; /* 基礎字體增大 */ }
+    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 1.1rem; /* 基礎字體增大 */ }
     h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; font-size: 1.8rem; /* 標題字體 (目標大小) */ }
     
     /* Controls Area Styling - Added Sticky Position */
@@ -38,7 +38,7 @@
         overflow-x: hidden; 
         white-space: normal; 
         
-        font-size: 1.3rem; /* 增大已選歌曲字體 */
+        font-size: 1.5rem; /* 增大已選歌曲字體 */
 
         position: sticky;
         top: 60px; 
@@ -88,7 +88,7 @@
         border: 1px solid #ccc;
         border-radius: 8px;
         transition: border-color 0.3s;
-        font-size: 1.4rem; /* 增大字體，接近標題 */
+        font-size: 1.6rem; /* 增大字體，接近標題 */
     }
     input[type="text"]:focus {
         border-color: #54bbcd;
@@ -106,7 +106,7 @@
         font-weight: bold;
         transition: background-color 0.3s, transform 0.1s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        font-size: 1.3rem; /* 增大按鈕文字，接近標題 */
+        font-size: 1.5rem; /* 增大按鈕文字，接近標題 */
         min-width: 100px;
         height: auto; /* 確保高度根據 padding 調整 */
     }
@@ -128,7 +128,7 @@
     .play-video-btn, .close-video-btn {
         background-color: #2ecc71; 
         padding: 12px 20px; /* 增大影片按鈕觸控區 */
-        font-size: 1.1rem; /* 增大字體 */
+        font-size: 1.5rem; /* 增大字體 */
         box-shadow: none;
         transform: none;
         margin: 5px 0;
@@ -164,7 +164,7 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden; 
-        font-size: 1.1rem; /* 增大表格文字 */
+        font-size: 1.3rem; /* 增大表格文字 */
     }
     th, td {
         border: 1px solid #e0e0e0;
@@ -179,7 +179,7 @@
         background-color: #f1f1f1;
         color: #333;
         font-weight: 600;
-        font-size: 1.2rem; /* 增大表頭文字 */
+        font-size: 1.4rem; /* 增大表頭文字 */
     }
 
     /* Column Widths */
@@ -239,7 +239,7 @@
     }
     .song-title {
         color: #2c3e50;
-        font-size: 1.8rem; /* 增大標題字體 */
+        font-size: 2.0rem; /* 增大標題字體 */
         margin-top: 0;
         margin-bottom: 15px;
         border-bottom: 2px solid #54bbcd;
@@ -253,7 +253,7 @@
     }
     .section-block h3 {
         color: #54bbcd;
-        font-size: 1.3rem; /* 增大區塊標題字體 */
+        font-size: 1.6rem; /* 增大區塊標題字體 */
         margin-bottom: 10px;
         display: inline-block; 
         margin-right: 15px;
@@ -262,7 +262,7 @@
         white-space: pre-wrap; 
         text-align: left;
         line-height: 1.8; 
-        font-size: 1.3rem; /* 變動 2a: 基礎歌詞字體增大到 1.3rem */
+        font-size: 1.5rem; /* 基礎歌詞字體增大到 1.5rem */
         transition: font-size 0.2s; 
     }
     /* 垂直排版用的全寬影片容器 */
@@ -286,7 +286,7 @@
     .font-size-btn {
         background-color: #f39c12; 
         padding: 12px 18px; /* 變動 2b: 增大 padding */
-        font-size: 1.2rem; /* 變動 2b: 增大字體 */
+        font-size: 1.5rem; /* 增大字體 */
         font-weight: normal;
         margin-left: 8px; /* 變動 2b: 增大 margin */
         line-height: 1;
@@ -317,11 +317,11 @@
     @media (max-width: 768px) {
         body { 
             padding: 10px; 
-            font-size: 19px; /* 基礎字體再放大 */
+            font-size: 1.1rem; /* 基礎字體再放大 */
         }
         
         /* 表格文字 */
-        table { font-size: 1.2rem; } /* 手機表格字體 */
+        table { font-size: 1.4rem; } /* 手機表格字體 */
         th, td { padding: 14px 10px; } /* 增大 padding */
 
         .controls { 
@@ -331,11 +331,11 @@
         }
         input[type="text"] { 
             width: 100%; 
-            font-size: 1.5rem; /* 搜尋欄位手機字體 (接近標題) */
+            font-size: 1.7rem; /* 搜尋欄位手機字體 (接近標題) */
             padding: 18px 20px; /* 增大 padding */
         }
         button { 
-            font-size: 1.4rem; /* 按鈕手機字體 (接近標題) */
+            font-size: 1.6rem; /* 按鈕手機字體 (接近標題) */
             padding: 18px 20px; 
             min-width: auto; 
         } 
@@ -343,13 +343,13 @@
         /* 重新計算 Sticky Header Top */
         /* 因為按鈕在手機上字體和 padding 變大，我們調整 top */
         .selected-display {
-            top: 280px; /* 根據新按鈕高度調整 */
+            top: 280px; /* 保持現有值，依賴相對尺寸調整 */
             border-radius: 0;
             flex-direction: column; 
-            font-size: 1.3rem; /* 已選歌曲字體 */
+            font-size: 1.6rem; /* 已選歌曲字體 */
         }
         .selected-display-title {
-            font-size: 1.4rem;
+            font-size: 1.7rem;
         }
         .selected-song-list {
             flex-wrap: wrap; 
@@ -357,21 +357,21 @@
             margin-top: 5px;
         }
         .selected-song-item {
-            font-size: 1.3rem;
+            font-size: 1.6rem;
         }
         
         /* 直式排版文字/標題 */
-        .song-title { font-size: 2rem; }
-        .section-block h3 { font-size: 1.5rem; }
-        .lyrics-block p { font-size: 1.5rem; } /* 變動 2a: 手機基礎歌詞字體增大到 1.5rem */
+        .song-title { font-size: 2.2rem; }
+        .section-block h3 { font-size: 1.8rem; }
+        .lyrics-block p { font-size: 1.7rem; } /* 手機基礎歌詞字體增大到 1.7rem */
         
         /* 字體調整按鈕在小螢幕上維持大尺寸 */
         .font-size-btn {
             padding: 15px 20px; 
-            font-size: 1.2rem; 
+            font-size: 1.5rem; 
         }
         .play-video-btn, .close-video-btn {
-            font-size: 1.2rem; 
+            font-size: 1.5rem; 
             padding: 18px;
         }
     }
@@ -439,7 +439,7 @@
           <!-- 動態計算歌名欄寬度 -->
           <th class="name" :style="{ width: nameColumnWidth }">歌名</th>
           <th class="youtube" v-if="showYoutube">YouTube</th>
-          <th class="sheet" v-if="showSheet">歌譜連結</th>
+          <th class="sheet" v-if="showSheet">歌譜</th>
           <th class="lyrics" v-if="showLyrics">歌詞</th>
         </tr>
       </thead>
@@ -485,7 +485,7 @@
           <!-- 歌譜連結欄位 (條件顯示) -->
           <td class="sheet" v-if="showSheet">
             <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">
-              下載歌譜
+              下載
             </a>
             <span v-else>-</span>
           </td>
@@ -528,10 +528,10 @@
 
             <!-- 歌譜連結 (Conditional Display) -->
             <div v-if="showSheet && sheetMap[song['歌名'].trim()]" class="section-block">
-                <h3>歌譜連結</h3>
+                <h3>歌譜</h3>
                 <!-- 下載連結 -->
                 <a :href="sheetMap[song['歌名'].trim()]" target="_blank" style="margin-right: 20px;">
-                    下載歌譜
+                    下載
                 </a>
 
                 <!-- 嵌入歌譜檔 (新功能: 僅在直式排版顯示) -->
@@ -569,7 +569,7 @@
                 </div>
 
                 <!-- 歌詞內容 (動態字體大小) -->
-                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.3) + 'rem' }">
+                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.5) + 'rem' }">
                     {{ song['歌詞'] }}
                 </p>
             </div>
@@ -634,14 +634,14 @@
         nameColumnWidth() {
             if (this.isVerticalLayout) return 'auto';
 
-            let totalFixed = 3; 
-            let totalAvailable = 100 - totalFixed; 
+            let totalFixed = 60; // 選擇欄位的固定寬度 (60px)
+            let totalAvailable = document.body.clientWidth - totalFixed; 
             
-            const defaultYoutubeWidth = 19;
-            const defaultSheetWidth = 19;
-            const defaultLyricsWidth = 40;
+            const defaultYoutubeWidth = 0.19;
+            const defaultSheetWidth = 0.19;
+            const defaultLyricsWidth = 0.40;
             
-            let totalRemaining = totalAvailable; 
+            let totalRemaining = 1.0; 
             
             if (this.showYoutube) {
                 totalRemaining -= defaultYoutubeWidth;
@@ -652,12 +652,14 @@
             if (this.showLyrics) {
                 totalRemaining -= defaultLyricsWidth;
             }
+            
+            // 由於 table-layout: fixed，歌名欄位的寬度是剩餘的百分比
+            // 在 CSS 中將歌名寬度設為百分比，這裡只需要確保它足夠大
+            const nameWidthPercent = totalRemaining * 100;
 
-            const nameWidth = totalRemaining;
+            if (nameWidthPercent < 5) return '5%';
             
-            if (nameWidth < 5) return '5%';
-            
-            return `${nameWidth}%`;
+            return `${nameWidthPercent}%`;
         }
       },
       methods: {
@@ -696,8 +698,8 @@
                 this.selectionOrderCounter++;
                 this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
                 if (!(songName in this.lyricsFontSizeMap)) {
-                    // 預設起始字體大小改為 1.3rem
-                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.3 };
+                    // 預設起始字體大小改為 1.5rem
+                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.5 };
                 }
             } else {
                 const newSelectedKeys = { ...this.selectedKeys };
@@ -715,12 +717,12 @@
         },
 
         adjustLyricsSize(songName, delta, reset = false) {
-            // 預設值調整為 1.3
-            let currentSize = this.lyricsFontSizeMap[songName] || 1.3;
+            // 預設值調整為 1.5
+            let currentSize = this.lyricsFontSizeMap[songName] || 1.5;
             let newSize;
 
             if (reset) {
-                newSize = 1.3; /* 配合新的預設值 */
+                newSize = 1.5; /* 配合新的預設值 */
             } else {
                 newSize = currentSize + delta;
             }
