@@ -1,79 +1,520 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>敬拜歌譜查詢</title>
+  <title>Hlllc 敬拜曲庫</title>
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input[type="text"] { width: 300px; padding: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-      vertical-align: middle;
-      word-break: break-word;
-      height: 50px;
+    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; }
+    h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; }
+    
+    /* Controls Area Styling - Added Sticky Position */
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px; 
+        flex-wrap: wrap; /* 允許換行以容納更多按鈕 */
+        
+        /* 關鍵變動：使其固定在頂部 (第一層) */
+        position: sticky; 
+        top: 0; 
+        z-index: 10; 
+        background-color: #f7f9fc; 
+        padding-top: 10px; 
+        padding-bottom: 10px; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-    td.select input[type="checkbox"] {
-      margin: 0 auto;
-      display: block;
-      transform: scale(1.2);
-    }
-    th.select, td.select { width: 3%; min-width: 40px; max-width: 40px; }
-    th.lyrics, td.lyrics { width: 40%; }
-    th.name, td.name,
-    th.youtube, td.youtube,
-    th.sheet, td.sheet { width: 19%; }
-    /* 新增的樣式：選取行背景色 */
-    .selected-row {
-      background-color: #54bbcd !important;
-    }
-</style>
 
-    <style>
-      .highlight-new {
-        background-color: #fff8b3 !important;
-      }
-    </style>
+    /* Selected Display Area Styling */
+    .selected-display {
+        background-color: #e0f7fa; /* 淺藍色背景 */
+        border: 1px solid #54bbcd;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 0 0 8px 8px; /* 移除上方圓角，讓它看起來像貼著 controls */
+        overflow-x: auto; 
+        white-space: nowrap; 
+        font-size: 0.95rem;
+
+        /* 關鍵變動：使其固定在 controls 下方 (第二層) */
+        position: sticky;
+        top: 60px; 
+        z-index: 9; /* 略低於 controls 的 z-index */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-top: none; 
+        
+        display: flex; /* 啟用 Flexbox */
+        align-items: flex-start;
+    }
+    .selected-display-title {
+        margin: 0;
+        line-height: 1.5;
+        flex-shrink: 0; /* 標題不縮小 */
+    }
+    .selected-song-list {
+        display: flex;
+        gap: 15px; /* 歌曲間距 */
+        padding-left: 10px;
+        align-items: center;
+        flex-grow: 1; /* 佔據剩餘空間 */
+    }
+    .selected-song-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: bold;
+    }
+    .selected-song-item input[type="checkbox"] {
+        transform: scale(1.1);
+        accent-color: #54bbcd; /* 使用主色調 */
+        flex-shrink: 0;
+    }
+
+    input[type="text"] {
+        width: 300px;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+    }
+    input[type="text"]:focus {
+        border-color: #54bbcd;
+        outline: none;
+    }
+    button {
+        padding: 8px 15px;
+        background-color: #54bbcd;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.1s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    button:hover {
+        background-color: #43a3b2;
+        transform: translateY(-1px);
+    }
+    
+    /* 隱藏按鈕的特殊樣式 */
+    .btn-hidden {
+        background-color: #bdc3c7; /* 灰色 */
+    }
+    .btn-hidden:hover {
+        background-color: #aeb4b8;
+    }
+
+
+    /* 播放/關閉影片按鈕樣式 */
+    .play-video-btn, .close-video-btn {
+        background-color: #2ecc71; /* 播放：綠色 */
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        box-shadow: none;
+        transform: none;
+        margin: 5px 0;
+        width: 100%;
+    }
+    .close-video-btn {
+        background-color: #e74c3c; /* 關閉：紅色 */
+    }
+    
+    /* Video Container for 16:9 aspect ratio in Table View */
+    .video-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; 
+        height: 0;
+        margin: 5px 0;
+    }
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0; 
+        table-layout: fixed; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        overflow: hidden; 
+    }
+    th, td {
+        border: 1px solid #e0e0e0;
+        padding: 10px 8px;
+        text-align: center;
+        vertical-align: middle;
+        word-break: break-word;
+        min-height: 50px; 
+        height: auto;
+    }
+    thead th {
+        background-color: #f1f1f1;
+        color: #333;
+        font-weight: 600;
+    }
+
+    /* Column Widths */
+    th.select, td.select { width: 3%; min-width: 40px; max-width: 40px; }
+    th.youtube, td.youtube { width: 19%; }
+    th.sheet, td.sheet { width: 19%; }
+    th.lyrics, td.lyrics { width: 40%; } 
+    th.name, td.name { 
+        width: 19%; 
+        background-color: #f7f7f7; 
+    }
+    
+    /* 確保歌詞換行和靠左對齊 */
+    td.lyrics {
+        white-space: pre-wrap; 
+        text-align: left;      
+    }
+
+    /* Interactive Styles */
+    td.select input[type="checkbox"] {
+        margin: 0 auto;
+        display: block;
+        transform: scale(1.2);
+        accent-color: #54bbcd;
+    }
+    .selected-row {
+        background-color: #c9eaf0 !important;
+        transition: background-color 0.3s;
+    }
+    
+    a {
+        color: #0077b6;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    
+    /* --- 新增：直式排版樣式 (Vertical Layout) --- */
+    .vertical-layout-container {
+        padding: 10px;
+    }
+    .song-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .song-title {
+        color: #2c3e50;
+        font-size: 1.5rem;
+        margin-top: 0;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #54bbcd;
+        padding-bottom: 5px;
+        word-break: break-all;
+    }
+    .section-block {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px dashed #eee;
+    }
+    .section-block h3 {
+        color: #54bbcd;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        display: inline-block; /* 讓 h3 和按鈕在同一行 */
+        margin-right: 15px;
+    }
+    .lyrics-block p {
+        white-space: pre-wrap; /* 確保歌詞換行 */
+        text-align: left;
+        line-height: 1.6;
+        transition: font-size 0.2s; /* 讓字體大小調整更平滑 */
+    }
+    /* 垂直排版用的全寬影片容器 */
+    .video-container-full {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 比例 */
+        height: 0;
+        margin: 10px 0;
+    }
+    .video-container-full iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+    }
+
+    /* 調整字體大小按鈕樣式 */
+    .font-size-btn {
+        background-color: #f39c12; /* 橘色 */
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        font-weight: normal;
+        margin-left: 5px;
+        line-height: 1;
+        box-shadow: none;
+    }
+    .font-size-btn:hover {
+        background-color: #e67e22;
+    }
+
+    /* New: Container for the embedded PDF viewer */
+    .pdf-viewer-container {
+        width: 100%;
+        /* 根據使用者要求，使用一個較大的固定高度，盡量顯示歌譜完整內容。 */
+        /* 調整為 3000px，讓外部頁面捲動，而非內嵌框內部捲動 */
+        height: 3000px; 
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .pdf-viewer-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Responsive adjustment for small screens */
+    @media (max-width: 768px) {
+        .controls { 
+            flex-direction: column; 
+            align-items: stretch;
+            padding-bottom: 5px; 
+        }
+        input[type="text"] { width: 100%; }
+        .selected-display {
+            top: 130px; 
+            border-radius: 0;
+            flex-direction: column; /* 小螢幕上標題和清單換行 */
+        }
+        .selected-song-list {
+            flex-wrap: wrap; /* 允許已選歌曲清單換行 */
+            padding-left: 0;
+            margin-top: 5px;
+        }
+    }
+  </style>
 </head>
 
 <body>
   <div id="app">
-    <h1>敬拜歌譜查詢</h1>
-    <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
+    <h1>Hlllc 敬拜曲庫</h1>
+    
+    <div class="controls">
+        <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
 
-    <table v-if="filteredSongs.length">
+        <!-- 新增直式排版/切換回表格 按鈕 -->
+        <button 
+          v-if="selectedSongsSorted.length > 0"
+          @click="isVerticalLayout = !isVerticalLayout" 
+          :class="{ 'btn-hidden': !isVerticalLayout, 'vertical-layout-btn': true }"
+        >
+          {{ isVerticalLayout ? '切換回表格' : '直式排版' }}
+        </button>
+        
+        <!-- YouTube 顯示/隱藏按鈕 -->
+        <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">
+          {{ showYoutube ? '隱藏 YouTube' : '顯示 YouTube' }}
+        </button>
+        
+        <!-- 歌譜連結 顯示/隱藏按鈕 -->
+        <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">
+          {{ showSheet ? '隱藏歌譜' : '顯示歌譜' }}
+        </button>
+        
+        <!-- 歌詞顯示/隱藏按鈕 -->
+        <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">
+          {{ showLyrics ? '隱藏歌詞' : '顯示歌詞' }}
+        </button>
+    </div>
+    
+    <!-- 已選歌曲顯示區塊 (Sticky 第二層) -->
+    <div v-if="selectedSongsSorted.length" class="selected-display">
+        <!-- 標題 -->
+        <p class="selected-display-title"><strong>已選歌曲（按選取順序）：</strong></p>
+        
+        <!-- 歌曲清單 (可取消勾選) -->
+        <div class="selected-song-list">
+            <span v-for="song in selectedSongsSorted" :key="song['歌名']" class="selected-song-item">
+                <input 
+                    type="checkbox" 
+                    :checked="true" 
+                    @change="toggleSongSelection(song['歌名'], false)" 
+                    :id="'sel-' + song['歌名']"
+                />
+                <label :for="'sel-' + song['歌名']">
+                    {{ song.formattedName }}
+                </label>
+            </span>
+        </div>
+    </div>
+
+    <!-- 表格排版 (預設) -->
+    <table v-if="!isVerticalLayout && filteredSongs.length">
       <thead>
         <tr>
           <th class="select">選擇</th>
-          <th class="name">歌名</th>
-          <th class="youtube">YouTube</th>
-          <th class="sheet">歌譜連結</th>
-          <th class="lyrics">歌詞</th>
+          <!-- 動態計算歌名欄寬度 -->
+          <th class="name" :style="{ width: nameColumnWidth }">歌名</th>
+          <th class="youtube" v-if="showYoutube">YouTube</th>
+          <th class="sheet" v-if="showSheet">歌譜連結</th>
+          <th class="lyrics" v-if="showLyrics">歌詞</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(song, idx) in filteredSongs" :key="song['歌名']" :class="{ 'selected-row': selected[idx] }">
-          <td class="select"><input type="checkbox" v-model="selected[idx]" /></td>
-          <td class="name"><span v-if="song['選唱'] === '近半年內沒選唱過'" style="color: red; font-weight: bold;">NEW<br></span><span v-html="formatTitle(song['歌名'])"></span></td>
-          <td class="youtube">
-            <a v-if="song['YouTube']" :href="song['YouTube']" target="_blank">YouTube 連結</a>
+        <tr v-for="song in filteredSongs" :key="song['歌名']" :class="{ 'selected-row': selectedKeys[song['歌名']] }">
+          <td class="select">
+            <input 
+              type="checkbox" 
+              :checked="!!selectedKeys[song['歌名']]"
+              @change="toggleSongSelection(song['歌名'], $event.target.checked)"
+            />
+          </td>
+          <!-- 動態計算歌名欄寬度 -->
+          <td class="name" :style="{ width: nameColumnWidth }">
+            <span v-if="song['選唱'] === '近半年內沒選唱過'" style="color: red; font-weight: bold;">NEW&nbsp;</span>
+            <span v-html="formatTitle(song['歌名'])"></span>
+          </td>
+          
+          <!-- YouTube 欄位 (條件顯示) -->
+          <td class="youtube" v-if="showYoutube">
+            <div v-if="song['YouTube']">
+                <!-- 影片播放中 -->
+                <template v-if="activeVideoName === song['歌名']">
+                    <div class="video-container">
+                        <iframe 
+                            :src="getYoutubeEmbedUrl(song['YouTube'])" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉影片</button>
+                </template>
+                
+                <!-- 影片未播放 -->
+                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
+                    播放影片
+                </button>
+            </div>
             <span v-else>-</span>
           </td>
-          <td class="sheet">
+          
+          <!-- 歌譜連結欄位 (條件顯示) -->
+          <td class="sheet" v-if="showSheet">
             <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">
               下載歌譜
             </a>
             <span v-else>-</span>
           </td>
-          <td class="lyrics">{{ song['歌詞'] }}</td>
+          
+          <td class="lyrics" v-if="showLyrics">{{ song['歌詞'] }}</td>
         </tr>
       </tbody>
     </table>
+    
+    <!-- 直式排版 (僅顯示已選歌曲) -->
+    <div v-else-if="isVerticalLayout && selectedSongsSorted.length" class="vertical-layout-container">
+        <div v-for="(song, index) in selectedSongsSorted" :key="song['歌名']" class="song-card">
+            
+            <h2 class="song-title">
+                <!-- 顯示選取順序 -->
+                <span style="color: #54bbcd;">#{{ index + 1 }}</span>
+                &nbsp;
+                <!-- 歌名 -->
+                <span v-if="song['選唱'] === '近半年內沒選唱過'" style="color: red; font-weight: bold; margin-right: 8px;">NEW</span>
+                {{ song.formattedName }}
+            </h2>
+
+            <!-- YouTube (Conditional Display) -->
+            <div v-if="showYoutube && song['YouTube']" class="section-block">
+                <h3>YouTube 影片</h3>
+                <template v-if="activeVideoName === song['歌名']">
+                    <div class="video-container-full">
+                        <iframe 
+                            :src="getYoutubeEmbedUrl(song['YouTube'])" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉影片</button>
+                </template>
+                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
+                    播放影片
+                </button>
+            </div>
+
+            <!-- 歌譜連結 (Conditional Display) -->
+            <div v-if="showSheet && sheetMap[song['歌名'].trim()]" class="section-block">
+                <h3>歌譜連結</h3>
+                <!-- 下載連結 -->
+                <a :href="sheetMap[song['歌名'].trim()]" target="_blank" style="margin-right: 20px;">
+                    下載歌譜
+                </a>
+
+                <!-- 嵌入歌譜檔 (新功能: 僅在直式排版顯示) -->
+                <div class="pdf-viewer-container">
+                    <iframe 
+                        :src="getSheetEmbedUrl(song['歌名'])" 
+                        allowfullscreen="true" 
+                        webkitallowfullscreen="true" 
+                        mozallowfullscreen="true"
+                    ></iframe>
+                </div>
+            </div>
+            
+            <!-- 歌詞 (Conditional Display) -->
+            <div v-if="showLyrics && song['歌詞']" class="section-block lyrics-block">
+                <!-- 歌詞標題及調整按鈕 -->
+                <div style="display: flex; align-items: center;">
+                    <h3>歌詞</h3>
+                    <!-- 縮小按鈕 -->
+                    <button 
+                        @click="adjustLyricsSize(song['歌名'], -0.1)"
+                        :disabled="lyricsFontSizeMap[song['歌名']] <= 0.8" 
+                        class="font-size-btn"
+                    >
+                        A-
+                    </button>
+                    <!-- 放大按鈕 -->
+                    <button 
+                        @click="adjustLyricsSize(song['歌名'], 0.1)"
+                        :disabled="lyricsFontSizeMap[song['歌名']] >= 2.0" 
+                        class="font-size-btn"
+                    >
+                        A+
+                    </button>
+                    <!-- 重置按鈕 -->
+                     <button 
+                        @click="adjustLyricsSize(song['歌名'], 1.0, true)"
+                        v-if="lyricsFontSizeMap[song['歌名']] !== 1.0"
+                        class="font-size-btn"
+                        style="background-color: #3498db;"
+                    >
+                        Reset
+                    </button>
+                </div>
+
+                <!-- 歌詞內容 (動態字體大小) -->
+                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.0) + 'rem' }">
+                    {{ song['歌詞'] }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
     <p v-else>查無資料</p>
   </div>
 
@@ -85,8 +526,16 @@
         return {
           search: '',
           songs: [],
-          selected: [],
-          sheetMap: {}
+          selectedKeys: {}, 
+          sheetMap: {},
+          showLyrics: true,
+          showYoutube: true, 
+          showSheet: true,   
+          isVerticalLayout: false, 
+          selectionOrderCounter: 0, 
+          activeVideoName: null, 
+          lyricsFontSizeMap: {}, 
+          sheetIdMap: {}, // 新增：儲存 Google Drive 檔案 ID
         };
       },
       computed: {
@@ -94,26 +543,168 @@
           const kw = this.search.trim().toLowerCase();
           let items = this.songs.map(song => ({
             ...song,
-            _nameStripped: song['歌名'].replace(/（[^）]*）/g, '')
+            _nameStripped: song['歌名'].replace(/（[^）]*）/g, ''),
+            formattedName: this.formatTitle(song['歌名']) 
           }));
           if (kw) {
             items = items.filter(song => song._nameStripped.toLowerCase().includes(kw));
           }
+          
           return items.sort((a, b) => a._nameStripped.localeCompare(b._nameStripped));
+        },
+        selectedSongsSorted() {
+            const selectedSongsWithOrder = this.songs
+                .filter(song => this.selectedKeys[song['歌名']])
+                .map(song => ({
+                    ...song,
+                    order: this.selectedKeys[song['歌名']],
+                    formattedName: this.formatTitle(song['歌名'])
+                }));
+
+            selectedSongsWithOrder.sort((a, b) => a.order - b.order);
+            
+            return selectedSongsWithOrder;
+        },
+        selectedSongNames() {
+            return this.selectedSongsSorted
+                .map(item => item.formattedName)
+                .join('、 ');
+        },
+        nameColumnWidth() {
+            if (this.isVerticalLayout) return 'auto';
+
+            let totalFixed = 3; 
+            let totalAvailable = 100 - totalFixed; 
+            
+            const defaultYoutubeWidth = 19;
+            const defaultSheetWidth = 19;
+            const defaultLyricsWidth = 40;
+            
+            let totalRemaining = totalAvailable; 
+            
+            if (this.showYoutube) {
+                totalRemaining -= defaultYoutubeWidth;
+            }
+            if (this.showSheet) {
+                totalRemaining -= defaultSheetWidth;
+            }
+            if (this.showLyrics) {
+                totalRemaining -= defaultLyricsWidth;
+            }
+
+            const nameWidth = totalRemaining;
+            
+            if (nameWidth < 5) return '5%';
+            
+            return `${nameWidth}%`;
         }
       },
       methods: {
         formatTitle(name) {
-          return name ? name.replace('（', '<br>（') : '';
+          if (!name) return '';
+          let formattedName = name.replace(/（/g, ' (').replace(/）/g, ')');
+          return formattedName.trim();
         },
+        toggleLyrics() {
+            this.activeVideoName = null; 
+            this.showLyrics = !this.showLyrics;
+        },
+        
+        toggleSongSelection(songName, isSelected) {
+            if (isSelected) {
+                this.selectionOrderCounter++;
+                this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
+                if (!(songName in this.lyricsFontSizeMap)) {
+                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.0 };
+                }
+            } else {
+                const newSelectedKeys = { ...this.selectedKeys };
+                delete newSelectedKeys[songName];
+                this.selectedKeys = newSelectedKeys;
+                
+                const newFontSizeMap = { ...this.lyricsFontSizeMap };
+                delete newFontSizeMap[songName];
+                this.lyricsFontSizeMap = newFontSizeMap;
+            }
+            
+            if (this.isVerticalLayout) {
+                this.activeVideoName = null;
+            }
+        },
+
+        adjustLyricsSize(songName, delta, reset = false) {
+            let currentSize = this.lyricsFontSizeMap[songName] || 1.0;
+            let newSize;
+
+            if (reset) {
+                newSize = 1.0; 
+            } else {
+                newSize = currentSize + delta;
+            }
+            
+            newSize = Math.max(0.8, Math.min(2.0, newSize));
+            
+            newSize = Math.round(newSize * 10) / 10;
+            
+            this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: newSize };
+        },
+        
+        toggleVideo(songName) {
+            if (!this.showYoutube) {
+                this.activeVideoName = null;
+                return;
+            }
+            
+            if (this.activeVideoName === songName) {
+                this.activeVideoName = null;
+            } else {
+                this.activeVideoName = songName;
+            }
+        },
+
+        getYoutubeEmbedUrl(url) {
+            let videoId = '';
+            const watchRegex = /[?&]v=([^&]+)/;
+            const shortRegex = /youtu\.be\/([^?&]+)/;
+
+            let match = url.match(watchRegex);
+            if (match && match[1]) {
+                videoId = match[1];
+            } else {
+                match = url.match(shortRegex);
+                if (match && match[1]) {
+                    videoId = match[1];
+                }
+            }
+            
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            }
+            return ''; 
+        },
+
+        // 新增：取得歌譜內嵌 URL
+        getSheetEmbedUrl(songName) {
+            const fileId = this.sheetIdMap[songName.trim()];
+            if (fileId) {
+                // 使用 Google Drive 的 /preview 路徑進行內嵌
+                return `https://drive.google.com/file/d/${fileId}/preview`;
+            }
+            return '';
+        },
+
         fetchSheetMap() {
           const url = 'https://script.google.com/macros/s/AKfycbwL9BcEAzQv_pYe5yC7r3lqRFIaz7Cfaqw9snBay0bgItUVbazm4PNsdT_5Cl_QEaYA/exec';
           return axios.get(url).then(resp => {
             const map = {};
+            const idMap = {}; // 儲存檔案 ID
             Object.keys(resp.data).forEach(name => {
-              map[name.trim()] = `https://drive.google.com/file/d/${resp.data[name]}`;
+              const fileId = resp.data[name];
+              map[name.trim()] = `https://drive.google.com/file/d/${fileId}`; // 下載連結
+              idMap[name.trim()] = fileId; // 檔案 ID
             });
             this.sheetMap = map;
+            this.sheetIdMap = idMap; // 賦值給新的狀態
           });
         }
       },
@@ -121,7 +712,8 @@
         axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
           .then(res => {
             this.songs = res.data;
-            this.selected = Array(this.songs.length).fill(false);
+            this.selectedKeys = {}; 
+            this.lyricsFontSizeMap = {}; 
           })
           .then(() => this.fetchSheetMap())
           .catch(err => console.error(err));
