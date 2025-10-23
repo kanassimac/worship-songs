@@ -461,7 +461,7 @@
             <!-- 新增直式排版/切換回表格 按鈕 -->
             <button 
               v-if="selectedSongsSorted.length > 0"
-              @click="isVerticalLayout = !isVerticalLayout" 
+              @click="toggleLayout(false)" 
               :class="{ 'btn-hidden': !isVerticalLayout }"
             >
               <!-- [調整 4] 按鈕文字 -->
@@ -785,9 +785,7 @@
           // 修正 1: 監聽已選歌曲數量。若在直式排版下歸零，則強制切回表格
           selectedSongsSorted(newVal) {
               if (this.isVerticalLayout && newVal.length === 0) {
-                  this.isVerticalLayout = false;
-                  this.activeVideoName = null;
-                  // 修正：移除 focus()，改為滾動到頂部，避免移動裝置上的非預期放大
+                  this.toggleLayout(false); // 使用新的統一切換方法
                   this.$nextTick(() => {
                       window.scrollTo(0, 0);
                   });
@@ -797,12 +795,26 @@
           search(newVal) {
               if (this.isVerticalLayout && newVal && newVal.trim().length > 0) {
                   this.$nextTick(() => {
-                      this.isVerticalLayout = false;
+                      this.toggleLayout(false); // 使用新的統一切換方法
                   });
               }
           }
       },
       methods: {
+        // NEW: 統一處理佈局切換的邏輯
+        toggleLayout(setVertical) {
+          if (setVertical === false || this.isVerticalLayout) {
+            // 切換回表格模式
+            this.isVerticalLayout = false;
+            // 新增邏輯：切回表格時，隱藏歌詞
+            this.showLyrics = false;
+            this.activeVideoName = null;
+          } else if (setVertical === true || !this.isVerticalLayout) {
+            // 切換到直式排版
+            this.isVerticalLayout = true;
+          }
+        },
+
         formatTitle(name) {
           if (!name) return '';
           
