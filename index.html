@@ -791,6 +791,12 @@
                       window.scrollTo(0, 0);
                   });
               }
+          },
+          // NEW 修正：當在直式排版時開始輸入搜尋，自動切換回表格
+          search(newVal) {
+              if (this.isVerticalLayout && newVal.trim().length > 0) {
+                  this.isVerticalLayout = false;
+              }
           }
       },
       methods: {
