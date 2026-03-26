@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hlllc 敬拜曲庫</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f7f9fc; font-size: 1.1rem; }
+    .header-container {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 20px; position: sticky; top: 0; z-index: 11;
+        background-color: #f7f9fc; padding-top: 5px; 
+    }
+    h1 { color: #2c3e50; border-bottom: 2px solid #54bbcd; padding-bottom: 10px; 
+        font-size: 1.8rem; margin: 0; width: auto; flex-shrink: 1; padding-right: 15px; }
+    .menu-toggle-btn { font-size: 1.8rem; padding: 10px 15px; margin-left: 10px;
+        flex-shrink: 0; align-self: flex-start; }
+    .controls {
+        gap: 10px; position: sticky; top: 0; z-index: 10; 
+        background-color: #f7f9fc; padding-top: 10px; padding-bottom: 10px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .controls-button-group {
+        display: flex; flex-wrap: wrap; gap: 10px;
+        justify-content: center; margin-top: 10px;
+    }
+
+    /* 搜尋模式切換 Tab */
+    .search-mode-tabs {
+        display: flex; justify-content: center; gap: 0; margin-bottom: 10px;
+    }
+    .search-mode-tab {
+        padding: 10px 24px; font-size: 1.3rem; font-weight: bold;
+        border: 2px solid #54bbcd; background-color: white; color: #54bbcd;
+        cursor: pointer; transition: all 0.2s; min-width: 120px;
+    }
+    .search-mode-tab:first-child { border-radius: 8px 0 0 8px; }
+    .search-mode-tab:last-child { border-radius: 0 8px 8px 0; }
+    .search-mode-tab.active { background-color: #54bbcd; color: white; }
+
+    /* 服事場次卡片 */
+    .service-results { margin: 15px auto; max-width: 95%; }
+    .service-results-title {
+        font-size: 1.4rem; color: #2c3e50; margin-bottom: 10px; text-align: center;
+    }
+    .service-results-title strong { color: #54bbcd; }
+    .service-card-list { display: flex; flex-direction: column; gap: 10px; }
+    .service-card {
+        background: white; border: 2px solid #e0e0e0; border-radius: 12px;
+        padding: 15px 20px; cursor: pointer; transition: all 0.2s;
+        display: flex; align-items: center; gap: 15px;
+    }
+    .service-card:hover { border-color: #54bbcd; box-shadow: 0 4px 12px rgba(84,187,205,0.15); }
+    .service-card.selected { border-color: #54bbcd; background-color: #e8f8fb; }
+    .service-card-checkbox {
+        transform: scale(1.8); accent-color: #54bbcd;
+        min-width: 30px; min-height: 30px; flex-shrink: 0;
+    }
+    .service-card-info { flex: 1; }
+    .service-card-date { font-size: 1.5rem; font-weight: bold; color: #2c3e50; }
+    .service-card-venue {
+        display: inline-block; background-color: #54bbcd; color: white;
+        padding: 2px 10px; border-radius: 4px; font-size: 1.1rem; margin-left: 8px;
+    }
+    .service-card-role { font-size: 1.2rem; color: #666; margin-top: 4px; }
+    .service-card-role strong { color: #e67e22; }
+    .service-card-songs { font-size: 1.1rem; color: #888; margin-top: 6px; }
+    .service-no-result { text-align: center; padding: 30px; color: #999; font-size: 1.3rem; }
+    .service-loading { text-align: center; padding: 30px; color: #54bbcd; font-size: 1.3rem; }
+    .unmatched-songs {
+        margin-top: 10px; padding: 10px 15px;
+        background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;
+        font-size: 1.1rem; color: #856404;
+    }
+    .unmatched-songs strong { color: #856404; }
+
+    /* Selected Display */
+    .selected-display {
+        background-color: #e0f7fa; border: 1px solid #54bbcd; padding: 15px;
+        margin-bottom: 20px; border-radius: 0 0 8px 8px; 
+        overflow-x: hidden; white-space: normal; font-size: 1.5rem;
+        position: sticky; transition: top 0.3s ease-in-out; z-index: 9; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: none; 
+        display: flex; align-items: flex-start;
+    }
+    .selected-display-title { margin: 0; line-height: 1.5; flex-shrink: 0; }
+    .selected-song-list { gap: 0; padding-left: 15px; }
+    .selected-song-item { display: block; margin-bottom: 5px; padding: 5px 0; }
+    .selected-song-item label { display: inline; }
+    .selected-song-item input[type="checkbox"] {
+        transform: scale(1.8); accent-color: #54bbcd; flex-shrink: 0;
+        min-width: 30px; min-height: 30px; margin-right: 10px; 
+    }
+    input[type="text"] {
+        width: 75%; min-width: 300px; padding: 15px 20px;
+        border: 1px solid #ccc; border-radius: 8px; transition: border-color 0.3s;
+        font-size: 1.6rem; display: block; margin: 0 auto 15px auto;
+    }
+    input[type="text"]:focus { border-color: #54bbcd; outline: none; }
+    button {
+        font-size: 1.8rem; padding: 15px 24px; background-color: #54bbcd;
+        color: white; border: none; border-radius: 8px; cursor: pointer;
+        font-weight: bold; transition: background-color 0.3s, transform 0.1s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 100px; height: auto; 
+    }
+    button:hover { background-color: #43a3b2; }
+    .btn-hidden { background-color: #bdc3c7; }
+    .btn-hidden:hover { background-color: #aeb4b8; }
+    .play-video-btn, .close-video-btn {
+        background-color: #2ecc71; padding: 12px 20px; font-size: 1.5rem; 
+        box-shadow: none; transform: none; margin: 5px 0; width: 100%; min-width: auto;
+    }
+    .close-video-btn { background-color: #e74c3c; }
+    .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin: 5px 0; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    table {
+        width: 100%; border-collapse: collapse; margin-top: 0; table-layout: fixed; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; font-size: 1.3rem; 
+    }
+    th, td {
+        border: 1px solid #e0e0e0; padding: 16px 12px; text-align: center;
+        vertical-align: middle; word-break: break-word; min-height: 60px; height: auto;
+    }
+    thead th { background-color: #f1f1f1; color: #333; font-weight: 600; font-size: 1.4rem; }
+    th.select, td.select { width: 60px; min-width: 60px; max-width: 60px; }
+    th.youtube, td.youtube { width: 19%; }
+    th.sheet, td.sheet { width: 19%; }
+    th.lyrics, td.lyrics { width: 40%; } 
+    th.name, td.name { width: 19%; background-color: #f7f7f7; text-align: left; }
+    td.lyrics { white-space: pre-wrap; text-align: left; }
+    td.name span, td.sheet a { font-size: 1.5rem; font-weight: bold; }
+    td.select input[type="checkbox"] {
+        margin: 0 auto; display: block; transform: scale(1.8); 
+        accent-color: #54bbcd; min-width: 30px; min-height: 30px;
+    }
+    .selected-row { background-color: #c9eaf0 !important; transition: background-color 0.3s; }
+    a { color: #0077b6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .vertical-layout-container { padding: 10px; }
+    .song-card {
+        background-color: white; border: 1px solid #ddd; border-radius: 12px;
+        padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .song-title {
+        color: #2c3e50; font-size: 2.0rem; margin-top: 0; margin-bottom: 15px;
+        border-bottom: 2px solid #54bbcd; padding-bottom: 5px; word-break: break-all;
+    }
+    .section-block { margin-top: 25px; padding-top: 10px; border-top: 1px dashed #eee; }
+    .section-block h3 { color: #54bbcd; font-size: 1.6rem; margin-bottom: 10px;
+        display: inline-block; margin-right: 15px; }
+    .lyrics-block p {
+        white-space: pre-wrap; text-align: left; line-height: 1.8; 
+        font-size: 1.5rem; transition: font-size 0.2s; 
+    }
+    .video-container-full { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin: 10px 0; }
+    .video-container-full iframe {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;
+    }
+    .font-size-btn {
+        background-color: #f39c12; padding: 12px 18px; font-size: 1.5rem; 
+        font-weight: normal; margin-left: 8px; line-height: 1; box-shadow: none;
+        min-width: 50px; min-height: 50px; transition: background-color 0.3s;
+    }
+    .font-size-btn:hover { background-color: #e67e22; }
+    .pdf-viewer-container {
+        width: 100%; padding-bottom: 141.4%; position: relative; 
+        border: 1px solid #ccc; border-radius: 8px; overflow: hidden;
+        margin-top: 10px; background-color: white; 
+    }
+    .pdf-viewer-container iframe {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    @media (max-width: 768px) {
+        body { padding: 10px; font-size: 1.2rem; }
+        .header-container { margin-bottom: 10px; }
+        h1 { padding-bottom: 5px; }
+        .menu-toggle-btn { font-size: 1.6rem; padding: 10px 15px; }
+        input[type="text"] { width: 95%; min-width: 95%; font-size: 1.6rem; }
+        .controls { padding-bottom: 5px; }
+        .controls-button-group { justify-content: space-around; }
+        button { font-size: 1.4rem; padding: 15px 10px; min-width: auto; flex-grow: 1; margin-bottom: 5px; } 
+        .selected-display {
+            top: 250px; border-radius: 0; flex-direction: column; font-size: 1.6rem; 
+        }
+        .selected-display-title { font-size: 1.7rem; }
+        .selected-song-list { display: block; padding-left: 0; margin-top: 5px; }
+        .selected-song-item { font-size: 1.6rem; }
+        .song-title { font-size: 2.2rem; }
+        .section-block h3 { font-size: 1.8rem; }
+        .font-size-btn { padding: 15px 20px; font-size: 1.5rem; }
+        .play-video-btn, .close-video-btn { font-size: 1.5rem; padding: 18px; }
+        .search-mode-tab { font-size: 1.2rem; padding: 10px 16px; }
+        .service-card-date { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header-container">
+      <h1>Hlllc 敬拜曲庫</h1>
+      <button @click="showControls = !showControls" class="menu-toggle-btn button">
+          {{ showControls ? '隱藏選單' : '顯示選單' }}
+      </button>
+    </div>
+    
+    <div class="controls" v-show="showControls">
+        <!-- 搜尋模式切換 Tab -->
+        <div class="search-mode-tabs">
+            <button class="search-mode-tab" :class="{ active: searchMode === 'song' }" 
+                @click="switchSearchMode('song')">🎵 搜尋歌曲</button>
+            <button class="search-mode-tab" :class="{ active: searchMode === 'name' }" 
+                @click="switchSearchMode('name')">👤 我的服事</button>
+        </div>
+
+        <template v-if="searchMode === 'song'">
+            <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
+        </template>
+        <template v-else>
+            <input type="text" v-model="nameSearch" placeholder="輸入你的姓名（如：林感恩）" @input="onNameInput" />
+        </template>
+
+        <div class="controls-button-group">
+            <button v-if="selectedSongsSorted.length > 0"
+              @click="toggleLayout(!isVerticalLayout)" 
+              :class="{ 'btn-hidden': !isVerticalLayout }">
+              {{ isVerticalLayout ? '表格' : '直式' }}
+            </button>
+            <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">YouTube</button>
+            <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">歌譜</button>
+            <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">歌詞</button>
+        </div>
+    </div>
+
+    <!-- 同工服事場次結果 -->
+    <div v-if="searchMode === 'name' && nameSearch.trim().length > 0" class="service-results">
+        <div v-if="serviceLoading" class="service-loading">⏳ 正在查詢服事資料...</div>
+        <div v-else-if="serviceRecords.length === 0 && nameSearched" class="service-no-result">
+            找不到「{{ nameSearch }}」的服事場次
+        </div>
+        <div v-else-if="serviceRecords.length > 0">
+            <p class="service-results-title">
+                <strong>{{ nameSearch }}</strong> 的服事場次（共 {{ serviceRecords.length }} 場）
+            </p>
+            <div class="service-card-list">
+                <div v-for="(rec, idx) in serviceRecords" :key="idx" 
+                    class="service-card" :class="{ selected: selectedServiceIdx === idx }"
+                    @click="selectService(idx)">
+                    <input type="checkbox" class="service-card-checkbox"
+                        :checked="selectedServiceIdx === idx" @click.stop="selectService(idx)" />
+                    <div class="service-card-info">
+                        <div>
+                            <span class="service-card-date">{{ rec.date }}</span>
+                            <span class="service-card-venue">{{ rec.venue }}</span>
+                        </div>
+                        <div class="service-card-role">
+                            服事角色：<strong>{{ rec.roles.join('、') }}</strong>
+                        </div>
+                        <div class="service-card-songs">🎵 {{ rec.songNames.join('、') }}</div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="unmatchedSongs.length > 0" class="unmatched-songs">
+                <strong>⚠️ 以下歌曲在曲庫中找不到：</strong>{{ unmatchedSongs.join('、') }}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 已選歌曲顯示區塊 -->
+    <div v-if="selectedSongsSorted.length" class="selected-display" 
+        v-show="showControls" :style="{ top: selectedDisplayTop }">
+        <p class="selected-display-title"><strong>已選歌曲（按選取順序）：</strong></p>
+        <div class="selected-song-list">
+            <span v-for="song in selectedSongsSorted" :key="song['歌名']" class="selected-song-item">
+                <input type="checkbox" :checked="true" 
+                    @change="toggleSongSelection(song['歌名'], false)" :id="'sel-' + song['歌名']" />
+                <label :for="'sel-' + song['歌名']">{{ formatSelectedSongName(song.formattedName) }}</label>
+            </span>
+        </div>
+    </div>
+
+    <!-- 表格排版 -->
+    <table v-if="!isVerticalLayout"> 
+      <thead>
+        <tr>
+          <th class="select">選擇</th>
+          <th class="name" :style="{ width: nameColumnWidth }">歌名</th>
+          <th class="youtube" v-if="showYoutube">YouTube</th>
+          <th class="sheet" v-if="showSheet">歌譜</th>
+          <th class="lyrics" v-if="showLyrics">歌詞</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-if="filteredSongs.length === 0">
+            <td :colspan="1 + 1 + (showYoutube?1:0) + (showSheet?1:0) + (showLyrics?1:0)">查無資料</td>
+        </tr>
+        <tr v-for="song in filteredSongs" :key="song['歌名']" :class="{ 'selected-row': selectedKeys[song['歌名']] }">
+          <td class="select">
+            <input type="checkbox" :checked="!!selectedKeys[song['歌名']]"
+              @change="toggleSongSelection(song['歌名'], $event.target.checked)" />
+          </td>
+          <td class="name" :style="{ width: nameColumnWidth }">
+            <span v-html="formatTitle(song['歌名'])"></span>
+          </td>
+          <td class="youtube" v-if="showYoutube">
+            <div v-if="song['YouTube']">
+                <template v-if="activeVideoName === song['歌名']">
+                    <div class="video-container">
+                        <iframe :src="getYoutubeEmbedUrl(song['YouTube'])" frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                    </div>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
+                </template>
+                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">播放</button>
+            </div>
+            <span v-else>-</span>
+          </td>
+          <td class="sheet" v-if="showSheet">
+            <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">下載</a>
+            <span v-else>-</span>
+          </td>
+          <td class="lyrics" v-if="showLyrics">{{ song['歌詞'] }}</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- 直式排版 -->
+    <div v-else-if="isVerticalLayout">
+        <p v-if="selectedSongsSorted.length === 0">請先在表格模式中選取歌曲。</p>
+        <div v-for="(song, index) in selectedSongsSorted" :key="song['歌名']" class="vertical-layout-container">
+            <div class="song-card">
+            <h2 class="song-title">
+                <span style="color: #54bbcd;">#{{ index + 1 }}</span>&nbsp;
+                {{ formatSelectedSongName(song.formattedName) }}
+            </h2>
+            <div v-if="showYoutube && song['YouTube']" class="section-block">
+                <h3>YouTube 影片</h3>
+                <template v-if="activeVideoName === song['歌名']">
+                    <div class="video-container-full">
+                        <iframe :src="getYoutubeEmbedUrl(song['YouTube'])" frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                    </div>
+                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
+                </template>
+                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">播放</button>
+            </div>
+            <div v-if="showSheet && sheetMap[song['歌名'].trim()]" class="section-block">
+                <h3>歌譜</h3>
+                <a :href="sheetMap[song['歌名'].trim()]" target="_blank" style="margin-right: 20px;">下載</a>
+                <div class="pdf-viewer-container">
+                    <iframe :src="getSheetEmbedUrl(song['歌名'])" allowfullscreen="true"></iframe>
+                </div>
+            </div>
+            <div v-if="showLyrics && song['歌詞']" class="section-block lyrics-block">
+                <div style="display: flex; align-items: center;">
+                    <h3>歌詞</h3>
+                    <button @click="adjustLyricsSize(song['歌名'], -0.1)"
+                        :disabled="lyricsFontSizeMap[song['歌名']] <= 0.8" class="font-size-btn">A-</button>
+                    <button @click="adjustLyricsSize(song['歌名'], 0.1)"
+                        :disabled="lyricsFontSizeMap[song['歌名']] >= 2.0" class="font-size-btn">A+</button>
+                </div>
+                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">{{ song['歌詞'] }}</p>
+            </div>
+        </div>
+        </div>
+    </div>
+    <p v-else-if="!filteredSongs.length">查無資料</p>
+  </div>
+
+  <script>
+    const { createApp, watch } = Vue;
+
+    const ROLE_COLUMNS = [
+      { key: '主領' }, { key: '禱告&報告' }, { key: '歌手' }, { key: '鍵盤' },
+      { key: '吉他' }, { key: '鼓手' }, { key: '貝斯' }, { key: '音控' },
+      { key: '字幕' }, { key: '直播' },
+    ];
+
+    createApp({
+      data() {
+        return {
+          search: '', songs: [], selectedKeys: {}, sheetMap: {},
+          showLyrics: false, showYoutube: true, showSheet: true,
+          isVerticalLayout: false, selectionOrderCounter: 0, 
+          activeVideoName: null, lyricsFontSizeMap: {}, sheetIdMap: {},
+          showControls: true,
+          searchMode: 'song',
+          nameSearch: '',
+          nameSearched: false,
+          serviceLoading: false,
+          serviceRecords: [],
+          selectedServiceIdx: null,
+          serviceSheetData: null,
+          unmatchedSongs: [],
+        };
+      },
+      computed: {
+        filteredSongs() {
+          const kw = this.search.trim().toLowerCase();
+          let items = this.songs.map(song => ({
+            ...song,
+            _nameStripped: song['歌名'].replace(/（[^）]*）/g, ''),
+            formattedName: this.formatTitle(song['歌名']) 
+          }));
+          if (kw) {
+            items = items.filter(song => song._nameStripped.toLowerCase().includes(kw));
+          }
+          return items.sort((a, b) => a._nameStripped.localeCompare(b._nameStripped));
+        },
+        selectedSongsSorted() {
+            return this.songs
+                .filter(song => this.selectedKeys[song['歌名']])
+                .map(song => ({
+                    ...song,
+                    order: this.selectedKeys[song['歌名']],
+                    formattedName: this.formatTitle(song['歌名'])
+                }))
+                .sort((a, b) => a.order - b.order);
+        },
+        nameColumnWidth() {
+            if (this.isVerticalLayout) return 'auto';
+            let r = 1.0; 
+            if (this.showYoutube) r -= 0.19;
+            if (this.showSheet) r -= 0.19;
+            if (this.showLyrics) r -= 0.40;
+            const p = r * 100;
+            return p < 5 ? '5%' : `${p}%`;
+        },
+        selectedDisplayTop() {
+            const H = 65, CD = 130, CM = 250;
+            const m = window.innerWidth <= 768;
+            return this.showControls ? `${H + (m ? CM : CD)}px` : `${H}px`;
+        }
+      },
+      watch: {
+          selectedSongsSorted(nv) {
+              if (this.isVerticalLayout && nv.length === 0) {
+                  this.toggleLayout(false);
+                  this.$nextTick(() => window.scrollTo(0, 0));
+              }
+          },
+          search(nv) {
+              if (this.isVerticalLayout && nv && nv.trim().length > 0)
+                  this.$nextTick(() => this.toggleLayout(false));
+          }
+      },
+      methods: {
+        switchSearchMode(mode) {
+            this.searchMode = mode;
+            if (mode === 'song') {
+                this.nameSearch = '';
+                this.serviceRecords = [];
+                this.selectedServiceIdx = null;
+                this.nameSearched = false;
+                this.unmatchedSongs = [];
+            } else {
+                this.search = '';
+                if (!this.serviceSheetData) this.fetchServiceSheet();
+            }
+        },
+
+        fetchServiceSheet() {
+            this.serviceLoading = true;
+            const url = 'https://opensheet.elk.sh/1MW8Ba9H_ZJzf0eMBJ90qFmRj_3HnVbEy79nG0prgxHw/敬拜服事總表';
+            axios.get(url)
+                .then(res => {
+                    this.serviceSheetData = res.data;
+                    this.serviceLoading = false;
+                    if (this.nameSearch.trim()) this.searchByName();
+                })
+                .catch(err => {
+                    console.error('載入服事總表失敗:', err);
+                    this.serviceLoading = false;
+                });
+        },
+
+        onNameInput() {
+            this.selectedServiceIdx = null;
+            this.unmatchedSongs = [];
+            if (!this.nameSearch.trim()) {
+                this.serviceRecords = [];
+                this.nameSearched = false;
+                return;
+            }
+            if (this.serviceSheetData) this.searchByName();
+            else this.fetchServiceSheet();
+        },
+
+        searchByName() {
+            const name = this.nameSearch.trim();
+            if (!name || !this.serviceSheetData) return;
+            this.nameSearched = true;
+            const results = [];
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            this.serviceSheetData.forEach(row => {
+                const matchedRoles = [];
+                ROLE_COLUMNS.forEach(rc => {
+                    const v = row[rc.key] || '';
+                    if (v.includes(name)) matchedRoles.push(rc.key);
+                });
+                if (matchedRoles.length === 0) return;
+
+                const dateStr = row['日期'] || '';
+                const venue = row['地點'] || '';
+                const songListRaw = row['歌單'] || '';
+                const songNames = this.parseSongNamesFromList(songListRaw);
+                const parsedDate = this.parseDateFromStr(dateStr);
+                
+                results.push({ date: dateStr, venue, roles: matchedRoles, songListRaw, songNames, parsedDate });
+            });
+
+            results.sort((a, b) => {
+                const af = a.parsedDate && a.parsedDate >= today;
+                const bf = b.parsedDate && b.parsedDate >= today;
+                if (af && !bf) return -1;
+                if (!af && bf) return 1;
+                if (a.parsedDate && b.parsedDate) return a.parsedDate - b.parsedDate;
+                return 0;
+            });
+            this.serviceRecords = results;
+        },
+
+        parseSongNamesFromList(raw) {
+            if (!raw) return [];
+            const names = [];
+            raw.split(/\n/).forEach(line => {
+                line = line.trim();
+                const m = line.match(/^\d+\.\s*(.+)/);
+                if (m) names.push(m[1].trim());
+            });
+            return names;
+        },
+
+        parseDateFromStr(s) {
+            if (!s) return null;
+            const m = s.match(/(\d{1,2})\/(\d{1,2})/);
+            if (m) return new Date(new Date().getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
+            return null;
+        },
+
+        selectService(idx) {
+            if (this.selectedServiceIdx === idx) {
+                this.selectedServiceIdx = null;
+                this.selectedKeys = {};
+                this.selectionOrderCounter = 0;
+                this.lyricsFontSizeMap = {};
+                this.unmatchedSongs = [];
+                return;
+            }
+
+            this.selectedServiceIdx = idx;
+            const rec = this.serviceRecords[idx];
+            this.selectedKeys = {};
+            this.selectionOrderCounter = 0;
+            this.lyricsFontSizeMap = {};
+            const unmatched = [];
+
+            rec.songNames.forEach(sName => {
+                const stripped = sName.replace(/（[^）]*）/g, '').replace(/\s+/g, '').trim();
+                
+                const found = this.songs.find(song => {
+                    const songStripped = song['歌名'].replace(/（[^）]*）/g, '').replace(/\s+/g, '').trim();
+                    return songStripped === stripped || songStripped.includes(stripped) || stripped.includes(songStripped);
+                });
+
+                if (found) {
+                    this.selectionOrderCounter++;
+                    this.selectedKeys[found['歌名']] = this.selectionOrderCounter;
+                    this.lyricsFontSizeMap[found['歌名']] = 1.7;
+                } else {
+                    unmatched.push(sName);
+                }
+            });
+
+            this.selectedKeys = { ...this.selectedKeys };
+            this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap };
+            this.unmatchedSongs = unmatched;
+        },
+
+        toggleLayout(v) {
+          this.isVerticalLayout = v;
+          if (!v) { this.showLyrics = false; this.activeVideoName = null; }
+        },
+        formatTitle(name) {
+          if (!name) return '';
+          let main = name.replace(/（[^）]*）/g, '').trim(); 
+          let group = '';
+          const m = name.match(/（([^）]*)）/);
+          if (m && m[1]) { group = m[1].trim().split('-')[0].trim(); }
+          return group ? main + '<br>' + group : main;
+        },
+        formatSelectedSongName(fn) { return fn.replace(/<br>/g, ' ｜ '); },
+        toggleLyrics() { this.showLyrics = !this.showLyrics; },
+        toggleSongSelection(songName, isSelected) {
+            if (isSelected) {
+                this.selectionOrderCounter++;
+                this.selectedKeys = { ...this.selectedKeys, [songName]: this.selectionOrderCounter };
+                if (!(songName in this.lyricsFontSizeMap))
+                    this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: 1.7 };
+            } else {
+                const nk = { ...this.selectedKeys }; delete nk[songName]; this.selectedKeys = nk;
+                const nf = { ...this.lyricsFontSizeMap }; delete nf[songName]; this.lyricsFontSizeMap = nf;
+            }
+            if (this.isVerticalLayout && !isSelected && this.activeVideoName === songName)
+                this.activeVideoName = null;
+        },
+        adjustLyricsSize(songName, delta) {
+            let s = this.lyricsFontSizeMap[songName] || 1.7;
+            s = Math.round(Math.max(0.8, Math.min(2.0, s + delta)) * 10) / 10;
+            this.lyricsFontSizeMap = { ...this.lyricsFontSizeMap, [songName]: s };
+        },
+        toggleVideo(songName) {
+            if (!this.showYoutube && this.isVerticalLayout) { this.activeVideoName = null; return; }
+            this.activeVideoName = this.activeVideoName === songName ? null : songName;
+        },
+        getYoutubeEmbedUrl(url) {
+            let id = '';
+            let m = url.match(/[?&]v=([^&]+)/);
+            if (m) id = m[1];
+            else { m = url.match(/youtu\.be\/([^?&]+)/); if (m) id = m[1]; }
+            return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : '';
+        },
+        getSheetEmbedUrl(songName) {
+            const fid = this.sheetIdMap[songName.trim()];
+            return fid ? `https://drive.google.com/file/d/${fid}/preview` : '';
+        },
+        fetchSheetMap() {
+          const url = 'https://script.google.com/macros/s/AKfycbwL9BcEAzQv_pYe5yC7r3lqRFIaz7Cfaqw9snBay0bgItUVbazm4PNsdT_5Cl_QEaYA/exec';
+          return axios.get(url).then(resp => {
+            const map = {}, idMap = {};
+            Object.keys(resp.data).forEach(name => {
+              const fid = resp.data[name];
+              map[name.trim()] = `https://drive.google.com/file/d/${fid}`;
+              idMap[name.trim()] = fid;
+            });
+            this.sheetMap = map; this.sheetIdMap = idMap;
+          });
+        }
+      },
+      mounted() {
+        axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
+          .then(res => { this.songs = res.data; this.selectedKeys = {}; this.lyricsFontSizeMap = {}; })
+          .then(() => this.fetchSheetMap())
+          .catch(err => console.error(err));
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
