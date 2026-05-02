@@ -790,14 +790,24 @@
         }
       },
       mounted() {
-        // Bug 4 修正：監聽 resize 事件，更新響應式的 windowWidth
+        // 1. 先載入歌曲資料，確保不受其他初始化影響
+        axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
+          .then(res => {
+            this.songs = res.data;
+            this.selectedKeys = {};
+            this.lyricsFontSizeMap = {};
+          })
+          .then(() => this.fetchSheetMap())
+          .catch(err => console.error('歌曲載入失敗：', err));
+
+        // 2. Bug 4 修正：監聽 resize 事件，更新響應式的 windowWidth
         this._onResize = () => {
             this.windowWidth = window.innerWidth;
             this.updateStickyOffset();
         };
         window.addEventListener('resize', this._onResize);
 
-        // Bug 3 修正：使用 ResizeObserver 監聽 header 與 controls 高度變化
+        // 3. Bug 3 修正：使用 ResizeObserver 監聽 header 與 controls 高度變化
         this._resizeObserver = new ResizeObserver(() => {
             this.updateStickyOffset();
         });
@@ -806,15 +816,6 @@
             if (this.$refs.controlsRef) this._resizeObserver.observe(this.$refs.controlsRef);
             this.updateStickyOffset();
         });
-
-        axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
-          .then(res => {
-            this.songs = res.data;
-            this.selectedKeys = {}; 
-            this.lyricsFontSizeMap = {}; 
-          })
-          .then(() => this.fetchSheetMap())
-          .catch(err => console.error(err));
       },
       // 清理監聽器，避免記憶體洩漏
       unmounted() {
