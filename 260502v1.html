@@ -324,72 +324,35 @@
         border: none;
     }
     @media (max-width: 768px) {
-        body { 
-            padding: 10px; 
-            font-size: 1.2rem;
-        }
+        body { padding: 10px; font-size: 1.2rem; }
         .header-container { margin-bottom: 10px; }
         h1 { padding-bottom: 5px; }
         .menu-toggle-btn { font-size: 1.6rem; padding: 10px 15px; }
-        input[type="text"] { 
-            width: 95%;
-            min-width: 95%;
-            font-size: 1.6rem; 
-        }
-        .controls { 
-            padding-bottom: 5px; 
-        }
-        .controls-button-group {
-            justify-content: space-around;
-        }
-        button { 
-            font-size: 1.4rem;
-            padding: 15px 10px; 
-            min-width: auto; 
-            flex-grow: 1;
-            margin-bottom: 5px;
-        } 
-        .selected-display {
-            border-radius: 0;
-            flex-direction: column; 
-            font-size: 1.6rem; 
-        }
-        .selected-display-title {
-            font-size: 1.7rem;
-        }
-        .selected-song-list {
-            display: block; 
-            padding-left: 0;
-            margin-top: 5px;
-        }
-        .selected-song-item {
-            font-size: 1.6rem;
-        }
-        
+        input[type="text"] { width: 95%; min-width: 95%; font-size: 1.6rem; }
+        .controls { padding-bottom: 5px; }
+        .controls-button-group { justify-content: space-around; }
+        button { font-size: 1.4rem; padding: 15px 10px; min-width: auto; flex-grow: 1; margin-bottom: 5px; } 
+        .selected-display { top: 250px; border-radius: 0; flex-direction: column; font-size: 1.6rem; }
+        .selected-display-title { font-size: 1.7rem; }
+        .selected-song-list { display: block; padding-left: 0; margin-top: 5px; }
+        .selected-song-item { font-size: 1.6rem; }
         .song-title { font-size: 2.2rem; }
         .section-block h3 { font-size: 1.8rem; }
-        
-        .font-size-btn {
-            padding: 15px 20px; 
-            font-size: 1.5rem; 
-        }
-        .play-video-btn, .close-video-btn {
-            font-size: 1.5rem; 
-            padding: 18px;
-        }
+        .font-size-btn { padding: 15px 20px; font-size: 1.5rem; }
+        .play-video-btn, .close-video-btn { font-size: 1.5rem; padding: 18px; }
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <div class="header-container" ref="headerRef">
+    <div class="header-container">
       <h1>Hlllc 敬拜曲庫</h1>
       <button @click="showControls = !showControls" class="menu-toggle-btn button">
           {{ showControls ? '隱藏選單' : '顯示選單' }}
       </button>
     </div>
     
-    <div class="controls" ref="controlsRef" v-show="showControls">
+    <div class="controls" v-show="showControls">
         <input type="text" v-model="search" placeholder="輸入歌名關鍵字" />
         <div class="controls-button-group">
             <button 
@@ -399,31 +362,19 @@
             >
               {{ isVerticalLayout ? '表格' : '直式' }}
             </button>
-            
-            <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">
-              {{ 'YouTube' }}
-            </button>
-            
-            <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">
-              {{ '歌譜' }}
-            </button>
-            
-            <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">
-              {{ '歌詞' }}
-            </button>
+            <button @click="showYoutube = !showYoutube" :class="{ 'btn-hidden': !showYoutube }">YouTube</button>
+            <button @click="showSheet = !showSheet" :class="{ 'btn-hidden': !showSheet }">歌譜</button>
+            <button @click="toggleLyrics" :class="{ 'btn-hidden': !showLyrics }">歌詞</button>
         </div>
     </div>
     
-    <!-- 已選歌曲顯示區塊 -->
-    <!-- Bug 3 修正：top 改用動態量測的 stickyOffset，不再硬編碼 -->
     <div 
         v-if="selectedSongsSorted.length" 
         class="selected-display" 
         v-show="showControls" 
-        :style="{ top: stickyOffset + 'px' }"
+        :style="{ top: selectedDisplayTop }"
     >
         <p class="selected-display-title"><strong>已選歌曲（按選取順序）：</strong></p>
-        
         <div class="selected-song-list">
             <span v-for="song in selectedSongsSorted" :key="song['歌名']" class="selected-song-item">
                 <input 
@@ -432,19 +383,16 @@
                     @change="toggleSongSelection(song['歌名'], false)" 
                     :id="'sel-' + song['歌名']"
                 />
-                <label :for="'sel-' + song['歌名']">
-                    {{ formatSelectedSongName(song.formattedName) }}
-                </label>
+                <label :for="'sel-' + song['歌名']">{{ formatSelectedSongName(song.formattedName) }}</label>
             </span>
         </div>
     </div>
 
-    <!-- 表格排版 (預設) -->
+    <!-- 表格排版 -->
     <table v-if="!isVerticalLayout"> 
       <thead>
         <tr>
           <th class="select">選擇</th>
-          <!-- Bug 4 修正：nameColumnWidth 現在基於響應式的 windowWidth -->
           <th class="name" :style="{ width: nameColumnWidth }">歌名</th>
           <th class="youtube" v-if="showYoutube">YouTube</th>
           <th class="sheet" v-if="showSheet">歌譜</th>
@@ -466,7 +414,6 @@
           <td class="name" :style="{ width: nameColumnWidth }">
             <span v-html="formatTitle(song['歌名'])"></span>
           </td>
-          
           <td class="youtube" v-if="showYoutube">
             <div v-if="song['YouTube']">
                 <template v-if="activeVideoName === song['歌名']">
@@ -480,99 +427,69 @@
                     </div>
                     <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
                 </template>
-                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
-                    播放
-                </button>
+                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">播放</button>
             </div>
             <span v-else>-</span>
           </td>
-          
           <td class="sheet" v-if="showSheet">
-            <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">
-              下載
-            </a>
+            <a v-if="sheetMap[song['歌名'].trim()]" :href="sheetMap[song['歌名'].trim()]" target="_blank">下載</a>
             <span v-else>-</span>
           </td>
-          
           <td class="lyrics" v-if="showLyrics">{{ song['歌詞'] }}</td>
         </tr>
       </tbody>
     </table>
     
-    <!-- 直式排版 (僅顯示已選歌曲) -->
-    <!-- Bug 2 修正：移除永遠不會執行的 v-else-if="!filteredSongs.length"，
-         查無資料已在表格內部的 <tr v-if="filteredSongs.length === 0"> 處理 -->
+    <!-- 直式排版：Bug 2 唯一修正點，v-else-if="isVerticalLayout" 改為 v-else -->
     <div v-else>
         <p v-if="selectedSongsSorted.length === 0">請先在表格模式中選取歌曲。</p>
-        
         <div v-for="(song, index) in selectedSongsSorted" :key="song['歌名']" class="vertical-layout-container">
             <div class="song-card">
-            <h2 class="song-title">
-                <span style="color: #54bbcd;">#{{ index + 1 }}</span>
-                &nbsp;
-                {{ formatSelectedSongName(song.formattedName) }}
-            </h2>
-            <div v-if="showYoutube && song['YouTube']" class="section-block">
-                <h3>YouTube 影片</h3>
-                <template v-if="activeVideoName === song['歌名']">
-                    <div class="video-container-full">
+                <h2 class="song-title">
+                    <span style="color: #54bbcd;">#{{ index + 1 }}</span>&nbsp;{{ formatSelectedSongName(song.formattedName) }}
+                </h2>
+                <div v-if="showYoutube && song['YouTube']" class="section-block">
+                    <h3>YouTube 影片</h3>
+                    <template v-if="activeVideoName === song['歌名']">
+                        <div class="video-container-full">
+                            <iframe 
+                                :src="getYoutubeEmbedUrl(song['YouTube'])" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                        <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
+                    </template>
+                    <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">播放</button>
+                </div>
+                <div v-if="showSheet && sheetMap[song['歌名'].trim()]" class="section-block">
+                    <h3>歌譜</h3>
+                    <a :href="sheetMap[song['歌名'].trim()]" target="_blank" style="margin-right: 20px;">下載</a>
+                    <div class="pdf-viewer-container">
                         <iframe 
-                            :src="getYoutubeEmbedUrl(song['YouTube'])" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen
+                            :src="getSheetEmbedUrl(song['歌名'])" 
+                            allowfullscreen="true" 
+                            webkitallowfullscreen="true" 
+                            mozallowfullscreen="true"
                         ></iframe>
                     </div>
-                    <button @click="toggleVideo(song['歌名'])" class="close-video-btn">關閉</button>
-                </template>
-                <button v-else @click="toggleVideo(song['歌名'])" class="play-video-btn">
-                    播放
-                </button>
-            </div>
-            <div v-if="showSheet && sheetMap[song['歌名'].trim()]" class="section-block">
-                <h3>歌譜</h3>
-                <a :href="sheetMap[song['歌名'].trim()]" target="_blank" style="margin-right: 20px;">
-                    下載
-                </a>
-                <div class="pdf-viewer-container">
-                    <iframe 
-                        :src="getSheetEmbedUrl(song['歌名'])" 
-                        allowfullscreen="true" 
-                        webkitallowfullscreen="true" 
-                        mozallowfullscreen="true"
-                    ></iframe>
+                </div>
+                <div v-if="showLyrics && song['歌詞']" class="section-block lyrics-block">
+                    <div style="display: flex; align-items: center;">
+                        <h3>歌詞</h3>
+                        <button @click="adjustLyricsSize(song['歌名'], -0.1)" :disabled="lyricsFontSizeMap[song['歌名']] <= 0.8" class="font-size-btn">A-</button>
+                        <button @click="adjustLyricsSize(song['歌名'], 0.1)" :disabled="lyricsFontSizeMap[song['歌名']] >= 2.0" class="font-size-btn">A+</button>
+                    </div>
+                    <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">{{ song['歌詞'] }}</p>
                 </div>
             </div>
-            
-            <div v-if="showLyrics && song['歌詞']" class="section-block lyrics-block">
-                <div style="display: flex; align-items: center;">
-                    <h3>歌詞</h3>
-                    <button 
-                        @click="adjustLyricsSize(song['歌名'], -0.1)"
-                        :disabled="lyricsFontSizeMap[song['歌名']] <= 0.8" 
-                        class="font-size-btn"
-                    >
-                        A-
-                    </button>
-                    <button 
-                        @click="adjustLyricsSize(song['歌名'], 0.1)"
-                        :disabled="lyricsFontSizeMap[song['歌名']] >= 2.0" 
-                        class="font-size-btn"
-                    >
-                        A+
-                    </button>
-                </div>
-                <p :style="{ 'font-size': (lyricsFontSizeMap[song['歌名']] || 1.7) + 'rem' }">
-                    {{ song['歌詞'] }}
-                </p>
-            </div>
-        </div>
         </div>
     </div>
   </div>
 
   <script>
-    const { createApp, watch, nextTick } = Vue;
+    const { createApp } = Vue;
     createApp({
       data() {
         return {
@@ -589,12 +506,6 @@
           lyricsFontSizeMap: {}, 
           sheetIdMap: {},
           showControls: true,
-          // Bug 4 修正：用響應式 data 儲存視窗寬度
-          windowWidth: window.innerWidth,
-          // Bug 3 修正：用響應式 data 儲存動態量測的 sticky offset
-          stickyOffset: 0,
-          // ResizeObserver 實例，供 unmount 時清理
-          _resizeObserver: null,
         };
       },
       computed: {
@@ -622,60 +533,48 @@
             return selectedSongsWithOrder;
         },
         selectedSongNames() {
-            return this.selectedSongsSorted
-                .map(item => item.formattedName)
-                .join('、 ');
+            return this.selectedSongsSorted.map(item => item.formattedName).join('、 ');
         },
-        // Bug 4 修正：改用響應式的 windowWidth，視窗縮放時會自動重算
         nameColumnWidth() {
             if (this.isVerticalLayout) return 'auto';
-
             const defaultYoutubeWidth = 0.19;
             const defaultSheetWidth = 0.19;
             const defaultLyricsWidth = 0.40;
-            
             let totalRemaining = 1.0; 
             if (this.showYoutube) totalRemaining -= defaultYoutubeWidth;
             if (this.showSheet)   totalRemaining -= defaultSheetWidth;
             if (this.showLyrics)  totalRemaining -= defaultLyricsWidth;
-            
             const nameWidthPercent = totalRemaining * 100;
             if (nameWidthPercent < 5) return '5%';
             return `${nameWidthPercent}%`;
         },
+        selectedDisplayTop() {
+            const HEADER_HEIGHT = 65; 
+            const CONTROLS_HEIGHT_DESKTOP = 130;
+            const CONTROLS_HEIGHT_MOBILE = 250;
+            const isMobile = window.innerWidth <= 768;
+            if (this.showControls) {
+                const controlsHeight = isMobile ? CONTROLS_HEIGHT_MOBILE : CONTROLS_HEIGHT_DESKTOP;
+                return `${HEADER_HEIGHT + controlsHeight}px`; 
+            } else {
+                return `${HEADER_HEIGHT}px`;
+            }
+        }
       },
       watch: {
           selectedSongsSorted(newVal) {
               if (this.isVerticalLayout && newVal.length === 0) {
                   this.toggleLayout(false);
-                  this.$nextTick(() => {
-                      window.scrollTo(0, 0);
-                  });
+                  this.$nextTick(() => { window.scrollTo(0, 0); });
               }
           },
           search(newVal) {
               if (this.isVerticalLayout && newVal && newVal.trim().length > 0) {
-                  this.$nextTick(() => {
-                      this.toggleLayout(false);
-                  });
+                  this.$nextTick(() => { this.toggleLayout(false); });
               }
-          },
-          // Bug 3 修正：選單顯示切換時重新量測高度
-          showControls() {
-              this.$nextTick(() => this.updateStickyOffset());
-          },
+          }
       },
       methods: {
-        // Bug 3 修正：動態量測 header + controls 的實際高度
-        updateStickyOffset() {
-            const header = this.$refs.headerRef;
-            const controls = this.$refs.controlsRef;
-            let offset = 0;
-            if (header) offset += header.getBoundingClientRect().height;
-            if (controls && this.showControls) offset += controls.getBoundingClientRect().height;
-            this.stickyOffset = offset;
-        },
-
         toggleLayout(setVertical) {
           if (setVertical) {
             this.isVerticalLayout = true;
@@ -717,12 +616,10 @@
                 const newSelectedKeys = { ...this.selectedKeys };
                 delete newSelectedKeys[songName];
                 this.selectedKeys = newSelectedKeys;
-                
                 const newFontSizeMap = { ...this.lyricsFontSizeMap };
                 delete newFontSizeMap[songName];
                 this.lyricsFontSizeMap = newFontSizeMap;
             }
-            
             if (this.isVerticalLayout) {
                 if (!isSelected && this.activeVideoName === songName) {
                     this.activeVideoName = null;
@@ -790,37 +687,14 @@
         }
       },
       mounted() {
-        // 1. 先載入歌曲資料，確保不受其他初始化影響
         axios.get('https://opensheet.elk.sh/1fZIE67QV7fBbKonS2TzUp3kY8GPuDdG1EYDf5d1C_t8/歌曲清單')
           .then(res => {
             this.songs = res.data;
-            this.selectedKeys = {};
-            this.lyricsFontSizeMap = {};
+            this.selectedKeys = {}; 
+            this.lyricsFontSizeMap = {}; 
           })
           .then(() => this.fetchSheetMap())
-          .catch(err => console.error('歌曲載入失敗：', err));
-
-        // 2. Bug 4 修正：監聽 resize 事件，更新響應式的 windowWidth
-        this._onResize = () => {
-            this.windowWidth = window.innerWidth;
-            this.updateStickyOffset();
-        };
-        window.addEventListener('resize', this._onResize);
-
-        // 3. Bug 3 修正：使用 ResizeObserver 監聽 header 與 controls 高度變化
-        this._resizeObserver = new ResizeObserver(() => {
-            this.updateStickyOffset();
-        });
-        this.$nextTick(() => {
-            if (this.$refs.headerRef)   this._resizeObserver.observe(this.$refs.headerRef);
-            if (this.$refs.controlsRef) this._resizeObserver.observe(this.$refs.controlsRef);
-            this.updateStickyOffset();
-        });
-      },
-      // 清理監聽器，避免記憶體洩漏
-      unmounted() {
-          window.removeEventListener('resize', this._onResize);
-          if (this._resizeObserver) this._resizeObserver.disconnect();
+          .catch(err => console.error(err));
       }
     }).mount('#app');
   </script>
